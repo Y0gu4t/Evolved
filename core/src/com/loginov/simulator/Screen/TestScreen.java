@@ -53,7 +53,7 @@ public class TestScreen extends InputApiAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.8f,0.8f,0.8f,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        api.batch.setProjectionMatrix(apiCamera.combined);
+        api.getBatch().setProjectionMatrix(apiCamera.combined);
         stage.act(delta);
         stage.draw();
     }

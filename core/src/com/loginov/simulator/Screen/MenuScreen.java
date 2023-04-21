@@ -1,78 +1,72 @@
 package com.loginov.simulator.Screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.loginov.simulator.Evolved;
+import com.loginov.simulator.util.ResourceManager;
 
-import static com.loginov.simulator.Evolved.proxy;
-
-public class MenuScreen extends InputApiAdapter {
-    private TextButton startButton;
-    private TextButton menuButton;
-    private Skin buttonSkin;
-    private Stage stage;
-    private static TextureAtlas atlas;
+public class MenuScreen extends BaseScreen {
+    private Stage menuStage;
+    private Table menuTable;
     private OrthographicCamera apiCamera;
     private Viewport apiPort;
-    private InputMultiplexer multiplexer;
+    private float stateTime;
 
-    public MenuScreen(){
-        super(proxy);
+    public MenuScreen(Evolved proxy, ResourceManager resourceManager){
+        super(proxy, resourceManager);
+        menuTable = createTable();
+        menuStage = new Stage();
         apiCamera = new OrthographicCamera();
         apiPort = new ScreenViewport(apiCamera);
+        handleStartButton();
+        handleSettingsButton();
+    }
 
-        Table buttonTable = new Table();
-        buttonSkin = new Skin();
-        atlas = new TextureAtlas("flat-earth/skin/flat-earth-ui.atlas");
-        buttonSkin.addRegions(atlas);
-        buttonSkin.load(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
-        startButton = new TextButton("Start", buttonSkin, "default");
-        menuButton = new TextButton("Simulator settings",buttonSkin,"default");
-        buttonTable.add(startButton).width(Gdx.graphics.getWidth()/3).padBottom(startButton.getHeight()).row();
-        buttonTable.add(menuButton).width(Gdx.graphics.getWidth()/3).padBottom(menuButton.getHeight()).row();
-        buttonTable.setX(Gdx.graphics.getWidth()/2 - buttonTable.getWidth()/2);
-        buttonTable.setY(Gdx.graphics.getHeight()-200);
 
-        stage = new Stage(apiPort);
-        stage.addActor(buttonTable);
-        multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);
-        multiplexer.addProcessor(this);
-        Gdx.input.setInputProcessor(multiplexer);
+    private void handleStartButton(){
+        createButton("Start", menuTable.getWidth()/3, 50, 0 , menuTable.getHeight()/10, menuTable);
+        Actor thisButton = menuTable.getCells().get(0).getActor();
+        thisButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                proxy.setScreen(new SimulatorScreen());
+            }
+        });
+    }
+
+    private void handleSettingsButton(){
+        createButton("Settings", menuTable.getWidth()/3, 50, 0 , menuTable.getHeight()/10, menuTable);
+        Actor thisButton = menuTable.getCells().get(1).getActor();
+        thisButton.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y){
+                proxy.setScreen(new SettingsScreen());
+            }
+        });
     }
 
     @Override
     public void show() {
-
+        menuStage.addActor(menuTable);
+        Gdx.input.setInputProcessor(menuStage);
     }
 
     @Override
     public void render(float delta) {
+        stateTime += Gdx.graphics.getDeltaTime();
         Gdx.gl.glClearColor(0.8f,0.8f,0.8f,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        proxy.batch.setProjectionMatrix(apiCamera.combined);
-        stage.act(delta);
-        stage.draw();
-        buttonPressed();
-    }
-
-    public void buttonPressed(){
-        if(startButton.isPressed()){
-            this.dispose();
-            proxy.setScreen(new SimulatorScreen());
-        }
-        if(menuButton.isPressed()){
-            this.dispose();
-            proxy.setScreen(new SettingsScreen());
-        }
+        proxy.getBatch().setProjectionMatrix(apiCamera.combined);
+        menuStage.act(delta);
+        menuStage.draw();
     }
 
     @Override
@@ -98,10 +92,7 @@ public class MenuScreen extends InputApiAdapter {
     @Override
     public void dispose() {
         Gdx.input.setInputProcessor(null);
-        multiplexer.clear();
-        buttonSkin.dispose();
         stage.dispose();
-        atlas.dispose();
     }
 
 }

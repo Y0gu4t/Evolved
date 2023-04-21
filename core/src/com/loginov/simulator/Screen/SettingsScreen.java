@@ -35,7 +35,7 @@ public class SettingsScreen extends InputApiAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.8f,0.8f,0.8f,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        proxy.batch.setProjectionMatrix(apiCamera.combined);
+        proxy.getBatch().setProjectionMatrix(apiCamera.combined);
         stage.act(delta);
         stage.draw();
     }

@@ -38,7 +38,6 @@ public class SimulatorScreen extends InputApiAdapter{
     private Table table;
     private Group group;
     private ShapeRenderer shapeRenderer;
-    private SpriteBatch batch;
     private Stage stage;
     private Skin buttonSkin;
     private TextureAtlas atlas;
@@ -71,7 +70,6 @@ public class SimulatorScreen extends InputApiAdapter{
         group = new Group();
         humans = new ArrayList<>();
         foods = new ArrayList<>();
-        batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         humanGenerationAreas = new ArrayList<>();
         foodGenerationAreas = new ArrayList<>();
@@ -220,16 +218,16 @@ public class SimulatorScreen extends InputApiAdapter{
     public void draw(float delta){
         Gdx.gl.glClearColor(1f, 1f, 1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.setProjectionMatrix(apiCamera.combined);
+        proxy.getBatch().setProjectionMatrix(apiCamera.combined);
 
-        batch.begin();
+        proxy.getBatch().begin();
         for (int i = 0; i < humans.size(); i++) {
-            humans.get(i).draw(batch);
+            humans.get(i).draw(proxy.getBatch());
         }
         for (int i = 0; i < foods.size(); i++) {
-            foods.get(i).draw(batch);
+            foods.get(i).draw(proxy.getBatch());
         }
-        batch.end();
+        proxy.getBatch().end();
         infoUpdate();
         stage.act(delta);
         stage.draw();
@@ -248,7 +246,7 @@ public class SimulatorScreen extends InputApiAdapter{
 
         if(backToMenuButton.isPressed()){
             this.dispose();
-            proxy.setScreen(new MenuScreen());
+            //proxy.setScreen(new MenuScreen());
         }
     }
 
