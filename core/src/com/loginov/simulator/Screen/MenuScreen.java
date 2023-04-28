@@ -14,7 +14,6 @@ import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.ResourceManager;
 
 public class MenuScreen extends BaseScreen {
-    private Stage menuStage;
     private Table menuTable;
     private OrthographicCamera apiCamera;
     private Viewport apiPort;
@@ -23,7 +22,7 @@ public class MenuScreen extends BaseScreen {
     public MenuScreen(Evolved proxy, ResourceManager resourceManager){
         super(proxy, resourceManager);
         menuTable = createTable();
-        menuStage = new Stage();
+        stage = new Stage();
         apiCamera = new OrthographicCamera();
         apiPort = new ScreenViewport(apiCamera);
         handleStartButton();
@@ -31,17 +30,23 @@ public class MenuScreen extends BaseScreen {
     }
 
 
+    /**
+     * create start button with listener
+     */
     private void handleStartButton(){
         createButton("Start", menuTable.getWidth()/3, 50, 0 , menuTable.getHeight()/10, menuTable);
         Actor thisButton = menuTable.getCells().get(0).getActor();
         thisButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
-                proxy.setScreen(new SimulatorScreen());
+                proxy.setScreen(new SimulatorScreen(proxy, (BaseScreen) proxy.getScreen(), resourceManager));
             }
         });
     }
 
+    /**
+     * create setting button with listener
+     */
     private void handleSettingsButton(){
         createButton("Settings", menuTable.getWidth()/3, 50, 0 , menuTable.getHeight()/10, menuTable);
         Actor thisButton = menuTable.getCells().get(1).getActor();
@@ -55,8 +60,8 @@ public class MenuScreen extends BaseScreen {
 
     @Override
     public void show() {
-        menuStage.addActor(menuTable);
-        Gdx.input.setInputProcessor(menuStage);
+        stage.addActor(menuTable);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -65,8 +70,8 @@ public class MenuScreen extends BaseScreen {
         Gdx.gl.glClearColor(0.8f,0.8f,0.8f,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         proxy.getBatch().setProjectionMatrix(apiCamera.combined);
-        menuStage.act(delta);
-        menuStage.draw();
+        stage.act(delta);
+        stage.draw();
     }
 
     @Override
@@ -91,6 +96,7 @@ public class MenuScreen extends BaseScreen {
 
     @Override
     public void dispose() {
+        super.dispose();
         Gdx.input.setInputProcessor(null);
         stage.dispose();
     }

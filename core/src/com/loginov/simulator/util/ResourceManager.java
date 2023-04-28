@@ -11,7 +11,7 @@ public class ResourceManager {
     private TextureAtlas textureAtlas;
     public Texture humanTexture;
     public Texture foodTexture;
-    public Skin button;
+    public Skin toolSkin;
     private final static String TEXTURE_ATLAS_PATH = "flat-earth/skin/flat-earth-ui.atlas";
     private final static String SKIN_PATH = "flat-earth/skin/flat-earth-ui.json";
 
@@ -29,10 +29,10 @@ public class ResourceManager {
         humanTexture = assetManager.get("human.png");
         foodTexture = assetManager.get("food.png");
 
-        // button
-        button = new Skin();
-        button.addRegions(textureAtlas);
-        button.load(Gdx.files.internal(SKIN_PATH));
+        // Skin
+        toolSkin = new Skin();
+        toolSkin.addRegions(textureAtlas);
+        toolSkin.load(Gdx.files.internal(SKIN_PATH));
     }
 
 
