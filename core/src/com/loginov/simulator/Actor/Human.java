@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.loginov.simulator.Screen.SimulatorScreen;
 
@@ -49,12 +50,13 @@ public class Human extends DynamicWorldObject {
     // update the human's position considering satiety, metabolism,
     // and simulation's speed values
     public void update() {
-        // линейная (1 - satiety/MAX_SATIETY), парабола Math.pow(Math.abs(satiety - MAX_SATIETY/2) / MAX_SATIETY/2, 2)
-        // y = ax^2 + b
-        this.getPosition().add(getVelocity().x * (1 - satiety / MAX_SATIETY) * METABOLISM * SimulatorScreen.simulationSpeed,
-                getVelocity().y * (1 - satiety / MAX_SATIETY) * METABOLISM * SimulatorScreen.simulationSpeed);
+        // y = -ax^2 + bx + c
+        float param = SimulatorScreen.simulationSpeed*METABOLISM*4;
+        float speed = (float)(-Math.pow((1 - satiety / MAX_SATIETY), 2) + (1 - satiety/ MAX_SATIETY));
+        this.getPosition().add((float)(getVelocity().x*param*speed), getVelocity().y*param*speed);
+        /*this.getPosition().add(getVelocity().x * (1 - satiety / MAX_SATIETY) * METABOLISM * SimulatorScreen.simulationSpeed,
+                getVelocity().y * (1 - satiety / MAX_SATIETY) * METABOLISM * SimulatorScreen.simulationSpeed);*/
     }
-
 
     public void findFood(ArrayList<Food> foods) { // использование сортировки не оптимально
         if (foods.size() > 0) {
@@ -92,7 +94,7 @@ public class Human extends DynamicWorldObject {
 
     public Human giveBirth(Texture texture) {
         agesAfterChildbirth = 0;
-        Human human = new Human(texture, this.getPosition().x, this.getPosition().y, this.METABOLISM * (float) (Math.random() + 0.5f));
+        Human human = new Human(texture, this.getPosition().x, this.getPosition().y, Math.min(Math.max(this.METABOLISM * (float) (Math.random() + 0.5f), 0.5f),2f));
 
         return human;
     }

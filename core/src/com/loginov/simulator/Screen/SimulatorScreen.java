@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -22,6 +21,7 @@ import com.loginov.simulator.Actor.Human;
 import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.ResourceManager;
 
+import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Random;
@@ -47,8 +47,8 @@ public class SimulatorScreen extends BaseScreen {
     public int foodAdd = 10;
     private float simulatorTime = 0f;
     private static final float METABOLISM = (float) (Math.random() + 0.5f);
-    private ArrayList<Rectangle2D> humanGenerationAreas;
-    private ArrayList<Rectangle2D> foodGenerationAreas;
+    private ArrayList<Rectangle2D.Float> humanGenerationAreas;
+    private ArrayList<Rectangle2D.Float> foodGenerationAreas;
     public float generatePeriod = 3f;
     public float generateTime = 0f;
     public float deltaSatiety = -10f;
@@ -94,6 +94,7 @@ public class SimulatorScreen extends BaseScreen {
         stage.addActor(infoTable);
         stage.addActor(group);
         // generate simulation objects
+        addFoodGenerationAreas();
         generateHumans(humanCount);
         generateFood(foodCount);
         // set input
@@ -109,11 +110,10 @@ public class SimulatorScreen extends BaseScreen {
         addHumanGenerationAreas();
         for(int i=0; i < humanToGenerate; i++){
             int rand = random.nextInt(humanGenerationAreas.size());
-            System.out.println(rand);
-            Rectangle2D area =  humanGenerationAreas.get(rand);
+            Rectangle2D area = humanGenerationAreas.get(rand);
             float x = (float)(area.getX() + random.nextFloat()*(area.getWidth() - Human.getHumanWidth()) + Human.getHumanWidth()/2);
             float y = (float)(area.getY() + random.nextFloat()*(area.getHeight() - Human.getHumanHeight()) + Human.getHumanHeight()/2);
-            humans.add(new Human(new Texture("human.png"), x, y, METABOLISM));
+            humans.add(new Human(resourceManager.humanTexture, x, y, METABOLISM));
         }
     }
 
@@ -123,9 +123,11 @@ public class SimulatorScreen extends BaseScreen {
      */
     private void generateFood(int foodToGenerate){
         for(int i=0; i < foodToGenerate; i++){
-            float x = group.getX() + random.nextFloat()*(group.getWidth() - Food.getFoodWidth())+Food.getFoodWidth()/2;
-            float y = random.nextFloat()*(group.getHeight() - Food.getFoodHeight()/2) + Food.getFoodHeight()/2;
-            foods.add(new Food(new Texture("food.png"), x, y));
+            int rand = random.nextInt(foodGenerationAreas.size());
+            Rectangle2D area = foodGenerationAreas.get(rand);
+            float x = (float) (area.getX() + random.nextFloat()*(area.getWidth() - Food.getFoodWidth()) + Food.getFoodWidth()/2);
+            float y = (float) (area.getY() + random.nextFloat()*(area.getHeight() - Food.getFoodHeight()) + Food.getFoodHeight()/2);
+            foods.add(new Food(resourceManager.foodTexture, x, y));
         }
     }
 
@@ -134,14 +136,32 @@ public class SimulatorScreen extends BaseScreen {
      * @// FIXME: 27.04.2023 need to replace (GeneratorManager)
      */
     private void addHumanGenerationAreas(){
-        Rectangle2D r1 = new Rectangle2D.Float(group.getX() + 10, group.getY() + 10, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D r2 = new Rectangle2D.Float(group.getX() + 10, group.getHeight() - group.getWidth()/8, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D r3 = new Rectangle2D.Float(group.getWidth() - group.getWidth()/8 - 10, group.getY() + 10, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D r4 = new Rectangle2D.Float(group.getWidth() - group.getWidth()/8 - 10, group.getHeight() - group.getWidth()/8 - 10, group.getWidth()/8, group.getWidth()/8);
+        Rectangle2D.Float r1 = new Rectangle2D.Float(group.getX() + 10, group.getY() + 10, group.getWidth()/16, group.getWidth()/8);
+        Rectangle2D.Float r2 = new Rectangle2D.Float(group.getX() + 10, group.getHeight() - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
+        Rectangle2D.Float r3 = new Rectangle2D.Float(group.getWidth(), group.getY() + 10, group.getWidth()/8, group.getWidth()/8);
+        Rectangle2D.Float r4 = new Rectangle2D.Float(group.getWidth(), group.getHeight() - group.getWidth()/8 - 10, group.getWidth()/8, group.getWidth()/8);
         humanGenerationAreas.add(r1);
         humanGenerationAreas.add(r2);
         humanGenerationAreas.add(r3);
         humanGenerationAreas.add(r4);
+    }
+
+    /**
+     * add food's areas
+     * @// FIXME: 27.04.2023 need to replace (GeneratorManager)
+     */
+    private void addFoodGenerationAreas(){
+        System.out.println("Group: " + group.getHeight());
+        Rectangle2D.Float r1 = new Rectangle2D.Float(group.getWidth()/2 + group.getWidth()/16, group.getHeight()/2 - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
+        Rectangle2D.Float r2 = new Rectangle2D.Float(group.getX() + 10, group.getHeight()/2 - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
+        Rectangle2D.Float r3 = new Rectangle2D.Float(group.getWidth()/2 + group.getWidth()/16, group.getHeight() - group.getWidth()/8, group.getWidth()/8, group.getWidth()/8);
+        Rectangle2D.Float r4 = new Rectangle2D.Float(group.getWidth()/2 + group.getWidth()/16, group.getY() + 10, group.getWidth()/8, group.getWidth()/8);
+        Rectangle2D.Float r5 = new Rectangle2D.Float(group.getWidth(), group.getHeight()/2 - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
+        foodGenerationAreas.add(r1);
+        foodGenerationAreas.add(r2);
+        foodGenerationAreas.add(r3);
+        foodGenerationAreas.add(r4);
+        foodGenerationAreas.add(r5);
     }
 
     /**
@@ -165,6 +185,7 @@ public class SimulatorScreen extends BaseScreen {
 
     }
 
+    // update when simulation paused
     public void updatePaused(float delta){
     }
 
@@ -174,8 +195,8 @@ public class SimulatorScreen extends BaseScreen {
      */
     public void updateRunning(float delta){
         simulatorTime += delta * simulationSpeed;
-        generateTime += delta;
-        if (generateTime >= generatePeriod/simulationSpeed) {
+        generateTime += delta * simulationSpeed;
+        if (generateTime >= generatePeriod) {
             generateTime = 0;
             generateFood(foodAdd);
             foodCount += foodAdd;
@@ -185,7 +206,7 @@ public class SimulatorScreen extends BaseScreen {
                 h.updateAge();
                 h.updateAgesAfterChildbirth();
                 if (h.giveBirthOpportunity()) {
-                    humansTmp.add(h.giveBirth(new Texture("human.png")));
+                    humansTmp.add(h.giveBirth(resourceManager.humanTexture));
                 }
             }
             humans.addAll(humansTmp);
@@ -336,7 +357,7 @@ public class SimulatorScreen extends BaseScreen {
 
     private void handleSpeedSlider(){
         final Slider speedSlider = createSlider(infoTable.getWidth(), 10, 0, 50, 0.5f, 5.0f, 0.5f, false, infoTable);
-        speedSlider.setValue(simulationSpeed);
+        speedSlider.setValue(1f);
         Actor thisSlider = infoTable.getCells().get(3).getActor();
         thisSlider.addAction(new Action() {
             @Override
@@ -348,7 +369,8 @@ public class SimulatorScreen extends BaseScreen {
     }
 
     private void handleGroup(){
-        group.setBounds(infoTable.getWidth(), 0, stage.getWidth() - infoTable.getWidth(), stage.getHeight());
+        group.setBounds(infoTable.getWidth()+ 20, 20, stage.getWidth() - infoTable.getWidth() - 30, stage.getHeight() - 30);
+        //group.setDebug(true);
     }
 
     @Override
