@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.loginov.simulator.Screen.SimulatorScreen;
+import com.loginov.simulator.util.FoodGenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,14 +76,14 @@ public class Human extends DynamicWorldObject {
         } else move(0, 0);
     }
 
-    public void isEaten(SimulatorScreen screen) {
+    public void isEaten(FoodGenerator foodGenerator) {
         float humanX = getPosition().x;
         float humanY = getPosition().y;
         float foodX = getFoodToEat().getPosition().x;
         float foodY = getFoodToEat().getPosition().y;
         if (Math.sqrt(Math.pow(humanX - foodX, 2) + Math.pow(humanY - foodY, 2)) < 1) {
             setSatiety(getFoodToEat().getSatiety() * METABOLISM);
-            screen.getFoods().remove(getFoodToEat());
+            foodGenerator.removeFood(getFoodToEat());
         }
     }
 

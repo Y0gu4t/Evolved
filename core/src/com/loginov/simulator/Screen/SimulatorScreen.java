@@ -16,15 +16,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.loginov.simulator.Actor.Food;
 import com.loginov.simulator.Actor.Human;
 import com.loginov.simulator.Evolved;
+import com.loginov.simulator.util.FoodGenerator;
+import com.loginov.simulator.util.HumanGenerator;
 import com.loginov.simulator.util.ResourceManager;
+import com.loginov.simulator.util.SimulationParams;
 
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class SimulatorScreen extends BaseScreen {
 
@@ -37,18 +36,11 @@ public class SimulatorScreen extends BaseScreen {
     private InputMultiplexer multiplexer;
     private SimulationState simulationState;
     private Viewport apiPort;
-    private final Random random;
     private Table infoTable;
     private Group group;
-    private ArrayList<Human> humans;
-    private ArrayList<Food> foods;
-    public int humanCount = 20;
-    public int foodCount = 30;
-    public int foodAdd = 10;
+    private FoodGenerator foodGenerator;
+    private HumanGenerator humanGenerator;
     private float simulatorTime = 0f;
-    private static final float METABOLISM = (float) (Math.random() + 0.5f);
-    private ArrayList<Rectangle2D.Float> humanGenerationAreas;
-    private ArrayList<Rectangle2D.Float> foodGenerationAreas;
     public float generatePeriod = 3f;
     public float generateTime = 0f;
     public float deltaSatiety = -10f;
@@ -63,24 +55,13 @@ public class SimulatorScreen extends BaseScreen {
         apiCam = new OrthographicCamera();
         apiCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         apiPort = new ScreenViewport(apiCam);
-        /*
-               need to replace
-         */
-        random = new Random();
         // set input and stage
         multiplexer = new InputMultiplexer();
         stage = new Stage(apiPort);
         //
         infoTable = new Table();
         group = new Group();
-        /*
-               need to replace
-          */
-        // create object list
-        humans = new ArrayList<>();
-        foods = new ArrayList<>();
-        humanGenerationAreas = new ArrayList<>();
-        foodGenerationAreas = new ArrayList<>();
+
         // put infoTable on the screen
         handleInfoTable();
         // create buttons
@@ -94,74 +75,13 @@ public class SimulatorScreen extends BaseScreen {
         stage.addActor(infoTable);
         stage.addActor(group);
         // generate simulation objects
-        addFoodGenerationAreas();
-        generateHumans(humanCount);
-        generateFood(foodCount);
+        humanGenerator = new HumanGenerator(group);
+        foodGenerator = new FoodGenerator(group);
+        foodGenerator.generate(SimulationParams.getFoodCount(), resourceManager);
+        humanGenerator.generate(SimulationParams.getHumanCount(), resourceManager);
         // set input
         multiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(multiplexer);
-    }
-
-    /**
-     * generate humans in simulation field
-     * @// FIXME: 27.04.2023 need to replace (GeneratorManager), need to rework
-     */
-    private void generateHumans(int humanToGenerate){
-        addHumanGenerationAreas();
-        for(int i=0; i < humanToGenerate; i++){
-            int rand = random.nextInt(humanGenerationAreas.size());
-            Rectangle2D area = humanGenerationAreas.get(rand);
-            float x = (float)(area.getX() + random.nextFloat()*(area.getWidth() - Human.getHumanWidth()) + Human.getHumanWidth()/2);
-            float y = (float)(area.getY() + random.nextFloat()*(area.getHeight() - Human.getHumanHeight()) + Human.getHumanHeight()/2);
-            humans.add(new Human(resourceManager.humanTexture, x, y, METABOLISM));
-        }
-    }
-
-    /**
-     * generate food in simulation field
-     * @// FIXME: 27.04.2023 need to replace (GeneratorManager), need to rework
-     */
-    private void generateFood(int foodToGenerate){
-        for(int i=0; i < foodToGenerate; i++){
-            int rand = random.nextInt(foodGenerationAreas.size());
-            Rectangle2D area = foodGenerationAreas.get(rand);
-            float x = (float) (area.getX() + random.nextFloat()*(area.getWidth() - Food.getFoodWidth()) + Food.getFoodWidth()/2);
-            float y = (float) (area.getY() + random.nextFloat()*(area.getHeight() - Food.getFoodHeight()) + Food.getFoodHeight()/2);
-            foods.add(new Food(resourceManager.foodTexture, x, y));
-        }
-    }
-
-    /**
-     * add human's home
-     * @// FIXME: 27.04.2023 need to replace (GeneratorManager)
-     */
-    private void addHumanGenerationAreas(){
-        Rectangle2D.Float r1 = new Rectangle2D.Float(group.getX() + 10, group.getY() + 10, group.getWidth()/16, group.getWidth()/8);
-        Rectangle2D.Float r2 = new Rectangle2D.Float(group.getX() + 10, group.getHeight() - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D.Float r3 = new Rectangle2D.Float(group.getWidth(), group.getY() + 10, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D.Float r4 = new Rectangle2D.Float(group.getWidth(), group.getHeight() - group.getWidth()/8 - 10, group.getWidth()/8, group.getWidth()/8);
-        humanGenerationAreas.add(r1);
-        humanGenerationAreas.add(r2);
-        humanGenerationAreas.add(r3);
-        humanGenerationAreas.add(r4);
-    }
-
-    /**
-     * add food's areas
-     * @// FIXME: 27.04.2023 need to replace (GeneratorManager)
-     */
-    private void addFoodGenerationAreas(){
-        System.out.println("Group: " + group.getHeight());
-        Rectangle2D.Float r1 = new Rectangle2D.Float(group.getWidth()/2 + group.getWidth()/16, group.getHeight()/2 - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D.Float r2 = new Rectangle2D.Float(group.getX() + 10, group.getHeight()/2 - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D.Float r3 = new Rectangle2D.Float(group.getWidth()/2 + group.getWidth()/16, group.getHeight() - group.getWidth()/8, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D.Float r4 = new Rectangle2D.Float(group.getWidth()/2 + group.getWidth()/16, group.getY() + 10, group.getWidth()/8, group.getWidth()/8);
-        Rectangle2D.Float r5 = new Rectangle2D.Float(group.getWidth(), group.getHeight()/2 - group.getWidth()/16, group.getWidth()/8, group.getWidth()/8);
-        foodGenerationAreas.add(r1);
-        foodGenerationAreas.add(r2);
-        foodGenerationAreas.add(r3);
-        foodGenerationAreas.add(r4);
-        foodGenerationAreas.add(r5);
     }
 
     /**
@@ -172,7 +92,7 @@ public class SimulatorScreen extends BaseScreen {
 
         ArrayList<Human> toDelete = new ArrayList<>();
 
-        for(Human human : humans){
+        for(Human human : humanGenerator.getHumans()){
             human.setSatiety(deltaSatiety * human.getMetabolism());
             if(human.getSatiety()<=0 || human.getAge() >= Human.MAX_AGES_OF_LIFE){
                 toDelete.add(human);
@@ -180,7 +100,7 @@ public class SimulatorScreen extends BaseScreen {
         }
 
         for(Human human : toDelete){
-            humans.remove(human);
+            humanGenerator.remove(human);
         }
 
     }
@@ -198,27 +118,26 @@ public class SimulatorScreen extends BaseScreen {
         generateTime += delta * simulationSpeed;
         if (generateTime >= generatePeriod) {
             generateTime = 0;
-            generateFood(foodAdd);
-            foodCount += foodAdd;
+            foodGenerator.generate(SimulationParams.getFoodAdd(), resourceManager);
             satietyUpdate(deltaSatiety);
             ArrayList<Human> humansTmp = new ArrayList<>();
-            for (Human h : humans) {
+            for (Human h : humanGenerator.getHumans()) {
                 h.updateAge();
                 h.updateAgesAfterChildbirth();
                 if (h.giveBirthOpportunity()) {
                     humansTmp.add(h.giveBirth(resourceManager.humanTexture));
                 }
             }
-            humans.addAll(humansTmp);
+            humanGenerator.add(humansTmp);
             humansTmp.clear();
         }
 
-        for (Human h : humans) {
-            if (!foods.contains(h.getFoodToEat())) {
-                h.findFood(foods);
+        for (Human h : humanGenerator.getHumans()) {
+            if (!foodGenerator.getFood().contains(h.getFoodToEat())) {
+                h.findFood(foodGenerator.getFood());
             }
             h.update();
-            h.isEaten(this);
+            h.isEaten(foodGenerator);
         }
     }
 
@@ -231,11 +150,11 @@ public class SimulatorScreen extends BaseScreen {
         proxy.getBatch().setProjectionMatrix(apiCam.combined);
 
         proxy.getBatch().begin();
-        for (int i = 0; i < humans.size(); i++) {
-            humans.get(i).draw(proxy.getBatch());
+        for (int i = 0; i < humanGenerator.getHumans().size(); i++) {
+            humanGenerator.getHumans().get(i).draw(proxy.getBatch());
         }
-        for (int i = 0; i < foods.size(); i++) {
-            foods.get(i).draw(proxy.getBatch());
+        for (int i = 0; i < foodGenerator.getFood().size(); i++) {
+            foodGenerator.getFood().get(i).draw(proxy.getBatch());
         }
         proxy.getBatch().end();
         stage.act(delta);
@@ -277,13 +196,6 @@ public class SimulatorScreen extends BaseScreen {
     }
 
     /**
-     * @// FIXME: 27.04.2023 need to replace
-     */
-    public ArrayList<Food> getFoods() {
-        return foods;
-    }
-
-    /**
      * set table's params
      */
     private void handleInfoTable(){
@@ -305,18 +217,18 @@ public class SimulatorScreen extends BaseScreen {
                 float avgSatiety = 0f;
                 float avgAge = 0f;
                 float avgMetabolism = 0f;
-                for(Human h : humans){
+                for(Human h : humanGenerator.getHumans()){
                     avgSatiety += h.getSatiety();
                     avgAge += h.getAge();
                     avgMetabolism += h.getMetabolism();
                 }
-                avgSatiety /= humans.size();
-                avgAge /= humans.size();
-                avgMetabolism /= humans.size();
+                avgSatiety /= humanGenerator.getHumans().size();
+                avgAge /= humanGenerator.getHumans().size();
+                avgMetabolism /= humanGenerator.getHumans().size();
 
                 textArea.setText("Simulation time: " + (int) simulatorTime +
-                                "\nPeople in simulation: " + humans.size() +
-                                "\nFood in simulation: " + foods.size() +
+                                "\nPeople in simulation: " + humanGenerator.getHumans().size() +
+                                "\nFood in simulation: " + foodGenerator.getFood().size() +
                                 String.format("\nAverage satiety: %.2f", avgSatiety) +
                                 String.format("\nAverage age: %.2f", avgAge) +
                                 String.format("\nAverage meta: %.2f", avgMetabolism));
