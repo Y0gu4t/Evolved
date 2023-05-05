@@ -53,7 +53,7 @@ public class MenuScreen extends BaseScreen {
         thisButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
-                proxy.setScreen(new SettingsScreen());
+                proxy.setScreen(new SettingsScreen(proxy, (BaseScreen) proxy.getScreen(), resourceManager));
             }
         });
     }

@@ -86,11 +86,11 @@ public class BaseScreen implements Screen {
         table.row();
     }
 
-    public TextArea createTextArea( float width, float height, float x, float y, boolean isDisabled, Table table){
-        TextArea textArea = new TextArea("", resourceManager.toolSkin, "default");
+    public TextArea createTextArea(String name, float width, float height, float x, float y, boolean isDisabled, boolean newRow, Table table){
+        TextArea textArea = new TextArea(name, resourceManager.toolSkin, "default");
         textArea.setDisabled(isDisabled);
         table.add(textArea).width(width).height(height).padLeft(x).padTop(y);
-        table.row();
+        if(newRow) table.row();
         return textArea;
     }
 

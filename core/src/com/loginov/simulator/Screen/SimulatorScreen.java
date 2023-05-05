@@ -43,7 +43,6 @@ public class SimulatorScreen extends BaseScreen {
     private float simulatorTime = 0f;
     public float generatePeriod = 3f;
     public float generateTime = 0f;
-    public float deltaSatiety = -10f;
     public static float simulationSpeed = 1f;
 
     public SimulatorScreen(Evolved proxy, BaseScreen previousScreen, ResourceManager resourceManager){
@@ -119,7 +118,7 @@ public class SimulatorScreen extends BaseScreen {
         if (generateTime >= generatePeriod) {
             generateTime = 0;
             foodGenerator.generate(SimulationParams.getFoodAdd(), resourceManager);
-            satietyUpdate(deltaSatiety);
+            satietyUpdate(SimulationParams.getDeltaSatiety());
             ArrayList<Human> humansTmp = new ArrayList<>();
             for (Human h : humanGenerator.getHumans()) {
                 h.updateAge();
@@ -209,7 +208,7 @@ public class SimulatorScreen extends BaseScreen {
      * create simulation's information field and add info updater
      */
     private void handleTextFieldSimulationInfo(){
-        final TextArea textArea = createTextArea(infoTable.getWidth(), infoTable.getHeight()/4, 0, 50, true, infoTable);
+        final TextArea textArea = createTextArea("", infoTable.getWidth(), infoTable.getHeight()/4, 0, 50, true, true, infoTable);
         Actor thisTextArea = infoTable.getCells().get(0).getActor();
         thisTextArea.addAction(new Action() {
             @Override
