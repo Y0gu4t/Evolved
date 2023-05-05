@@ -8,6 +8,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.ResourceManager;
@@ -74,7 +76,7 @@ public class BaseScreen implements Screen {
         return stage;
     }
 
-    public Table createTable(){
+    protected Table createTable(){
         Table table = new Table();
         table.setBounds(0, 0, (float) Gdx.graphics.getWidth(), (float) Gdx.graphics.getHeight());
         return table;
@@ -92,6 +94,14 @@ public class BaseScreen implements Screen {
         table.add(textArea).width(width).height(height).padLeft(x).padTop(y);
         if(newRow) table.row();
         return textArea;
+    }
+
+    public TextField createTextField(String name, float width, float height, float x, float y, boolean isDisabled, boolean newRow, Table table){
+        TextField textField = new TextField(name, resourceManager.toolSkin, "default");
+        textField.setDisabled(isDisabled);
+        table.add(textField).width(width).height(height).padLeft(x).padTop(y);
+        if(newRow) table.row();
+        return textField;
     }
 
     public Slider createSlider( float width, float height, float x, float y, float min, float max, float stepSize, boolean isVertical, Table table){

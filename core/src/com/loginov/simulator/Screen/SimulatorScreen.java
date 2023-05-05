@@ -57,12 +57,11 @@ public class SimulatorScreen extends BaseScreen {
         // set input and stage
         multiplexer = new InputMultiplexer();
         stage = new Stage(apiPort);
-        //
-        infoTable = new Table();
+
+        infoTable = createTable();
         group = new Group();
 
-        // put infoTable on the screen
-        handleInfoTable();
+
         // create buttons
         handleTextFieldSimulationInfo();
         handlePauseButton();
@@ -197,11 +196,13 @@ public class SimulatorScreen extends BaseScreen {
     /**
      * set table's params
      */
-    private void handleInfoTable(){
-        infoTable.setWidth(stage.getWidth()/8);
-        infoTable.setHeight(stage.getHeight());
-        infoTable.padLeft(10).padTop(10);
-        infoTable.align(Align.topLeft);
+    @Override
+    protected Table createTable(){
+        Table table = new Table();
+        table.setBounds(0, 0, (float) Gdx.graphics.getWidth()/8, (float) Gdx.graphics.getHeight());
+        table.padLeft(10).padTop(10);
+        table.align(Align.topLeft);
+        return table;
     }
 
     /**
