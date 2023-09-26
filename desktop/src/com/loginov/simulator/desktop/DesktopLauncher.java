@@ -1,18 +1,17 @@
 package com.loginov.simulator.desktop;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+
 import com.loginov.simulator.Evolved;
 
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.width = 1200;
-		config.height = 700;
-		config.x = 10;
-		config.y = 50;
-		config.forceExit = false;
-		new LwjglApplication(new Evolved(), config);
+		final Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		config.setWindowedMode(1920,1080);
+		config.setWindowPosition(10, 10);
+		config.setForegroundFPS(60);
+		new Lwjgl3Application(new Evolved(), config);
 	}
 }
