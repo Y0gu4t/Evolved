@@ -110,21 +110,19 @@ public class Human extends DynamicWorldObject {
         }
     }
 
-    public void findFood(ArrayList<Food> foods) { // TODO: использование сортировки не оптимально
+    public void findFood(ArrayList<Food> foods) {
         if (foods.size() > 0) {
-            // TODO: линейно пройтись по ArrayList и найти ближайший
-            Collections.sort(foods, new Comparator<Food>() {
-                @Override
-                public int compare(Food f1, Food f2) {
-                    return Double.compare(Math.sqrt(Math.pow(getPosition().x - f1.getPosition().x, 2) + Math.pow(getPosition().y - f1.getPosition().y, 2)),
-                            Math.sqrt(Math.pow(getPosition().x - f2.getPosition().x, 2) + Math.pow(getPosition().y - f2.getPosition().y, 2)));
+            foodToEat = foods.get(0);
+            for (Food f: foods){
+                if (Math.sqrt(Math.pow(getPosition().x - f.getPosition().x, 2) + Math.pow(getPosition().y - f.getPosition().y, 2)) <
+                        Math.sqrt(Math.pow(getPosition().x - foodToEat.getPosition().x, 2) + Math.pow(getPosition().y - foodToEat.getPosition().y, 2))){
+                    foodToEat = f;
                 }
-            });
-            Food food = foods.get(0);
-            foodToEat = food;
-            float dist = (float) Math.sqrt(Math.pow(getPosition().x - food.getPosition().x, 2) + Math.pow(getPosition().y - food.getPosition().y, 2));
-            float dx = food.getPosition().x - getPosition().x;
-            float dy = food.getPosition().y - getPosition().y;
+            }
+            float dist = (float) Math.sqrt(Math.pow(getPosition().x - foodToEat.getPosition().x, 2) +
+                                    Math.pow(getPosition().y - foodToEat.getPosition().y, 2));
+            float dx = foodToEat.getPosition().x - getPosition().x;
+            float dy = foodToEat.getPosition().y - getPosition().y;
             move(SPEED * (dx / dist), SPEED * (dy / dist));
         } else move(0, 0);
     }
@@ -136,7 +134,7 @@ public class Human extends DynamicWorldObject {
         if(getFoodToEat() != null) {
             float foodX = getFoodToEat().getPosition().x;
             float foodY = getFoodToEat().getPosition().y;
-            if (Math.sqrt(Math.pow(humanX - foodX, 2) + Math.pow(humanY - foodY, 2)) < 1) {
+            if (Math.sqrt(Math.pow(humanX - foodX, 2) + Math.pow(humanY - foodY, 2)) < 1*SimulatorScreen.simulationSpeed) {
                 setSatiety(getFoodToEat().getSatiety() * METABOLISM);
                 foodGenerator.removeFood(getFoodToEat());
                 return true;
