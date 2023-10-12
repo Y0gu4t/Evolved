@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.loginov.simulator.Screen.SimulatorScreen;
 import com.loginov.simulator.util.FoodGenerator;
+import com.loginov.simulator.util.HumanGenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +20,13 @@ import java.util.Comparator;
  * minimum and maximum age for reproduction, breeding interval, lifespan value
  * @author loginov0203@gmail.com
  */
+
 public class Human extends DynamicWorldObject {
+    public enum HumanState{
+        GO_HOME,
+        FIND_FOOD,
+        AT_HOME,
+    }
     private static final float HUMAN_WIDTH = 30f;
     private static final float HUMAN_HEIGHT = 30f;
     private final float MAX_SATIETY = 100f;
@@ -33,33 +40,79 @@ public class Human extends DynamicWorldObject {
     private Texture satietyLineTexture;
     private float satiety = 70f;
     private int age;
+    private Vector2 home;
+
+    private HumanState state;
     private int agesAfterChildbirth = 0;
+
 
     public Human(Texture texture, float x, float y, float METABOLISM) {
         super(texture, x, y, HUMAN_WIDTH, HUMAN_HEIGHT);
         age = 0;
+        home = new Vector2(x,y);
+        state = HumanState.FIND_FOOD;
         createTexture((int) getBounds().width, 10, Color.RED);
         this.METABOLISM = METABOLISM;
     }
-    
-    // set velocity of body
+
+    public void operate(FoodGenerator foodGenerator, HumanGenerator humanGenerator){
+        switch (state) {
+            case AT_HOME:
+                if (this.giveBirthOpportunity()) {
+                    humanGenerator.add(this.giveBirth(this.getTexture()));
+                }
+                move(0,0);
+                break;
+            case FIND_FOOD:
+                if (!foodGenerator.getFood().contains(this.getFoodToEat())) {
+                    this.findFood(foodGenerator.getFood());
+                }
+                if (this.isEaten(foodGenerator)){
+                    this.setState(HumanState.GO_HOME);
+                }
+                break;
+            case GO_HOME:
+                goHome();
+                break;
+        }
+        this.update();
+    }
+
+    /**
+     * set velocity of body
+     * @param dx - delta x,
+     * @param dy - delta y
+      */
     public void move(float dx, float dy) {
         this.setVelocity(new Vector2(dx, dy));
     }
 
-    // update the human's position considering satiety, metabolism,
-    // and simulation's speed values
+    /**
+     * update the human's position considering satiety, metabolism,
+     * and simulation's speed values
+      */
     public void update() {
-        // y = -ax^2 + bx + c
+        // y = -ax^2 + bx
         float param = SimulatorScreen.simulationSpeed*METABOLISM*4;
         float speed = (float)(-Math.pow((1 - satiety / MAX_SATIETY), 2) + (1 - satiety/ MAX_SATIETY));
-        this.getPosition().add((float)(getVelocity().x*param*speed), getVelocity().y*param*speed);
-        /*this.getPosition().add(getVelocity().x * (1 - satiety / MAX_SATIETY) * METABOLISM * SimulatorScreen.simulationSpeed,
-                getVelocity().y * (1 - satiety / MAX_SATIETY) * METABOLISM * SimulatorScreen.simulationSpeed);*/
+        this.getPosition().add(getVelocity().x*param*speed, getVelocity().y*param*speed);
     }
 
-    public void findFood(ArrayList<Food> foods) { // использование сортировки не оптимально
+    public void goHome() {
+        if (Math.sqrt(Math.pow(getPosition().x - home.x, 2) + Math.pow(getPosition().y - home.y, 2)) < 1) {
+            setState(HumanState.AT_HOME);
+        }
+        else {
+            float dist = (float) Math.sqrt(Math.pow(getPosition().x - home.x, 2) + Math.pow(getPosition().y - home.y, 2));
+            float dx = home.x - getPosition().x;
+            float dy = home.y - getPosition().y;
+            move(SPEED * (dx/dist), SPEED * (dy/dist));
+        }
+    }
+
+    public void findFood(ArrayList<Food> foods) { // TODO: использование сортировки не оптимально
         if (foods.size() > 0) {
+            // TODO: линейно пройтись по ArrayList и найти ближайший
             Collections.sort(foods, new Comparator<Food>() {
                 @Override
                 public int compare(Food f1, Food f2) {
@@ -76,15 +129,20 @@ public class Human extends DynamicWorldObject {
         } else move(0, 0);
     }
 
-    public void isEaten(FoodGenerator foodGenerator) {
+    public boolean isEaten(FoodGenerator foodGenerator) {
         float humanX = getPosition().x;
         float humanY = getPosition().y;
-        float foodX = getFoodToEat().getPosition().x;
-        float foodY = getFoodToEat().getPosition().y;
-        if (Math.sqrt(Math.pow(humanX - foodX, 2) + Math.pow(humanY - foodY, 2)) < 1) {
-            setSatiety(getFoodToEat().getSatiety() * METABOLISM);
-            foodGenerator.removeFood(getFoodToEat());
+        // TODO: think about optimize
+        if(getFoodToEat() != null) {
+            float foodX = getFoodToEat().getPosition().x;
+            float foodY = getFoodToEat().getPosition().y;
+            if (Math.sqrt(Math.pow(humanX - foodX, 2) + Math.pow(humanY - foodY, 2)) < 1) {
+                setSatiety(getFoodToEat().getSatiety() * METABOLISM);
+                foodGenerator.removeFood(getFoodToEat());
+                return true;
+            }
         }
+        return false;
     }
 
     public boolean giveBirthOpportunity() {
@@ -156,6 +214,14 @@ public class Human extends DynamicWorldObject {
 
     public void updateAgesAfterChildbirth() {
         agesAfterChildbirth++;
+    }
+
+    public HumanState getState() {
+        return state;
+    }
+
+    public void setState(HumanState state) {
+        this.state = state;
     }
 
     @Override

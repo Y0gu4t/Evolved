@@ -6,10 +6,10 @@ import com.loginov.simulator.Actor.Food;
 
 import java.util.ArrayList;
 
-public class FoodGenerator extends UnitGenerator{
+public class FoodGenerator extends UnitGenerator {
     private ArrayList<Food> food;
 
-    public FoodGenerator(Group group){
+    public FoodGenerator(Group group) {
         super(group);
         this.minAreaSize = SimulationParams.getMinFoodAreaSize();
         this.maxAreaSize = SimulationParams.getMaxFoodAreaSize();
@@ -20,16 +20,18 @@ public class FoodGenerator extends UnitGenerator{
     }
 
     @Override
-    protected void defineArea(ResourceManager resourceManager){
-        int areaId = MathUtils.random(areas.size()-1);
-        float minX = areas.get(areaId).x + Food.getFoodWidth()/2;
-        float maxX = minX + areas.get(areaId).width - Food.getFoodWidth();
-        float minY = areas.get(areaId).y + Food.getFoodHeight()/2;
-        float maxY = minY + areas.get(areaId).height - Food.getFoodHeight();
-        food.add(new Food(resourceManager.foodTexture, MathUtils.random(minX, maxX), MathUtils.random(minY, maxY)));
+    protected void defineArea(ResourceManager resourceManager) {
+        int areaId = MathUtils.random(areas.size() - 1);
+
+        float randomAngle = MathUtils.random(-MathUtils.PI, MathUtils.PI);
+        float randomRadius = MathUtils.random(0, areas.get(areaId).radius);
+        float x = areas.get(areaId).x - Food.getFoodWidth() / 2 + randomRadius * MathUtils.cos(randomAngle);
+        float y = areas.get(areaId).y - Food.getFoodHeight() / 2 + randomRadius * MathUtils.sin(randomAngle);
+
+        food.add(new Food(resourceManager.foodTexture, x, y));
     }
 
-    public void removeFood(Food f){
+    public void removeFood(Food f) {
         food.remove(f);
     }
 

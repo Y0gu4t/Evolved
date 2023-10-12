@@ -2,8 +2,11 @@ package com.loginov.simulator.Screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -40,10 +43,11 @@ public class SimulatorScreen extends BaseScreen {
     private Group group;
     private FoodGenerator foodGenerator;
     private HumanGenerator humanGenerator;
+    private  ShapeRenderer shapeRenderer;
     private float simulatorTime = 0f;
-    public float generatePeriod = 3f;
+    public float generatePeriod = 10f;
     public float generateTime = 0f;
-    public static float simulationSpeed = 1f;
+    public static float simulationSpeed = 0.0f;
 
     public SimulatorScreen(Evolved proxy, BaseScreen previousScreen, ResourceManager resourceManager){
         super(proxy, resourceManager);
@@ -60,6 +64,7 @@ public class SimulatorScreen extends BaseScreen {
         //
         infoTable = new Table();
         group = new Group();
+        shapeRenderer = new ShapeRenderer();
 
         // put infoTable on the screen
         handleInfoTable();
@@ -116,27 +121,27 @@ public class SimulatorScreen extends BaseScreen {
         simulatorTime += delta * simulationSpeed;
         generateTime += delta * simulationSpeed;
         if (generateTime >= generatePeriod) {
+
             generateTime = 0;
             foodGenerator.generate(SimulationParams.getFoodAdd(), resourceManager);
             satietyUpdate(SimulationParams.getDeltaSatiety());
-            ArrayList<Human> humansTmp = new ArrayList<>();
+            // ArrayList<Human> humansTmp = new ArrayList<>();
             for (Human h : humanGenerator.getHumans()) {
                 h.updateAge();
                 h.updateAgesAfterChildbirth();
-                if (h.giveBirthOpportunity()) {
-                    humansTmp.add(h.giveBirth(resourceManager.humanTexture));
-                }
+                h.setState(Human.HumanState.FIND_FOOD);
             }
-            humanGenerator.add(humansTmp);
-            humansTmp.clear();
+            // humanGenerator.add(humansTmp);
+            // humansTmp.clear();
         }
 
-        for (Human h : humanGenerator.getHumans()) {
-            if (!foodGenerator.getFood().contains(h.getFoodToEat())) {
-                h.findFood(foodGenerator.getFood());
-            }
-            h.update();
-            h.isEaten(foodGenerator);
+        // TODO: problem with new humans
+        // TODO: ищут, пока не найдут одну. Если вечер и
+        //  ничего не нашли, то принудительно возвращаются.
+        //  Далее следующий цикл, проверка на голод (смерть, размножение)
+        //  Нового человечка расположить рядом с родителем
+        for (Human h: humanGenerator.getHumans()) {
+            h.operate(foodGenerator, humanGenerator);
         }
     }
 
@@ -148,14 +153,21 @@ public class SimulatorScreen extends BaseScreen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         proxy.getBatch().setProjectionMatrix(apiCam.combined);
 
+        // show simulation areas
+        debugAreas(humanGenerator.getAreas());
+       // debugAreas(foodGenerator.getAreas());
+
         proxy.getBatch().begin();
+
         for (int i = 0; i < humanGenerator.getHumans().size(); i++) {
             humanGenerator.getHumans().get(i).draw(proxy.getBatch());
         }
         for (int i = 0; i < foodGenerator.getFood().size(); i++) {
             foodGenerator.getFood().get(i).draw(proxy.getBatch());
         }
+
         proxy.getBatch().end();
+
         stage.act(delta);
         stage.draw();
     }
@@ -267,8 +279,8 @@ public class SimulatorScreen extends BaseScreen {
     }
 
     private void handleSpeedSlider(){
-        final Slider speedSlider = createSlider(infoTable.getWidth(), 10, 0, 50, 0.5f, 5.0f, 0.5f, false, infoTable);
-        speedSlider.setValue(1f);
+        final Slider speedSlider = createSlider(infoTable.getWidth(), 10, 0, 50, 0.0f, 5.0f, 0.5f, false, infoTable);
+        speedSlider.setValue(simulationSpeed);
         Actor thisSlider = infoTable.getCells().get(3).getActor();
         thisSlider.addAction(new Action() {
             @Override
@@ -282,6 +294,18 @@ public class SimulatorScreen extends BaseScreen {
     private void handleGroup(){
         group.setBounds(infoTable.getWidth()+ 20, 20, stage.getWidth() - infoTable.getWidth() - 30, stage.getHeight() - 30);
         //group.setDebug(true);
+    }
+
+    private void debugAreas(ArrayList<Circle> areas){
+        proxy.getShapeRenderer().setProjectionMatrix(apiCam.combined);
+        proxy.getShapeRenderer().begin(ShapeRenderer.ShapeType.Filled);
+
+        proxy.getShapeRenderer().setColor(Color.CYAN);
+        for (Circle area: areas) {
+            proxy.getShapeRenderer().circle(area.x, area.y, area.radius);
+        }
+
+        proxy.getShapeRenderer().end();
     }
 
     @Override

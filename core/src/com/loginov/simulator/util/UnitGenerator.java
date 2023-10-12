@@ -1,9 +1,9 @@
 package com.loginov.simulator.util;
 
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.loginov.simulator.Actor.Human;
 
 import java.util.ArrayList;
 
@@ -13,40 +13,61 @@ public abstract class UnitGenerator {
     protected float minDistance;
     protected int amountArea;
     protected Group group;
-    protected ArrayList<Rectangle> areas;
+    protected ArrayList<Circle> areas;
 
     protected UnitGenerator(Group group){
         this.group = group;
-        areas = new ArrayList<Rectangle>();
+        areas = new ArrayList<>();
     }
 
-    public void generateAreas(com.badlogic.gdx.scenes.scene2d.Group group){
+    /**
+     * create several (amountArea) circular area
+     * with random coordinates and size
+     * in the group
+     * @param group - simulation screen area
+     */
+    public void generateAreas(Group group){
+        if (amountArea == 1){
+            generateArea(group);
+            return;
+        }
         for(int i=0; i < amountArea; i++){
             // randomize new area
             float areaSize = MathUtils.random(minAreaSize, maxAreaSize);
-            Rectangle newArea = new Rectangle();
-            newArea.setSize(areaSize);
-            newArea.setCenter(MathUtils.random(group.getX() + newArea.getWidth()/2, group.getWidth() - newArea.getWidth()/2),
-                    MathUtils.random(group.getY() + newArea.getHeight()/2, group.getHeight() - newArea.getHeight()/2));
+            Circle circleArea = new Circle();
+            circleArea.setRadius(areaSize);
+            circleArea.setPosition(MathUtils.random(group.getX() + circleArea.radius, group.getWidth() - circleArea.radius),
+                    MathUtils.random(group.getY() + circleArea.radius, group.getHeight() - circleArea.radius));
 
             boolean isValid = false;
-            // check that the new area is at the right distance from the rest
+            // TODO: check that the new area is at the right distance from the rest
             while (!isValid) {
                 isValid = true;
-                for (Rectangle area : areas) {
-                    Vector2 tmp = new Vector2();
-                    float distance = (float) Math.sqrt(Math.pow(newArea.getCenter(tmp).x - area.getCenter(tmp).x, 2) +
-                            Math.pow(newArea.getCenter(tmp).y - area.getCenter(tmp).y, 2));
+                for (Circle area : areas) {
+                    float distance = (float) Math.sqrt(Math.pow(circleArea.x - area.x, 2) +
+                            Math.pow(circleArea.y - area.y, 2));
                     if (distance < minDistance) {
                         isValid = false;
-                        newArea.setCenter(MathUtils.random(group.getX() + newArea.getWidth()/2, group.getWidth() - newArea.getWidth()/2),
-                                MathUtils.random(group.getY() + newArea.getHeight()/2, group.getHeight() - newArea.getHeight()/2));
+                        circleArea.setPosition(MathUtils.random(group.getX() + circleArea.radius, group.getWidth() - circleArea.radius),
+                                MathUtils.random(group.getY() + circleArea.radius, group.getHeight() - circleArea.radius));
                         break;
                     }
                 }
             }
-            areas.add(newArea);
+            areas.add(circleArea);
         }
+    }
+
+    /**
+     * create one large circular area in the center of the group
+     * @param group - simulation screen area
+     */
+    private void generateArea(Group group){
+        float radius = group.getHeight()/2 - Human.getHumanHeight();
+        Circle circleArea = new Circle();
+        circleArea.setRadius(radius);
+        circleArea.setPosition((group.getX()+group.getWidth()/2), (group.getY()+group.getHeight())/2);
+        areas.add(circleArea);
     }
 
     public void generate(int count, ResourceManager resourceManager){
@@ -59,7 +80,7 @@ public abstract class UnitGenerator {
 
     }
 
-    public ArrayList<Rectangle> getAreas() {
+    public ArrayList<Circle> getAreas() {
         return areas;
     }
 }

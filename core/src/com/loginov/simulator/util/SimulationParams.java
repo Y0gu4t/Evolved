@@ -4,12 +4,12 @@ public class SimulationParams {
 
     private static int foodCount = 30;
     private static int foodAdd = 10;
-    private static int foodAreas = 5;
+    private static int foodAreas = 1;
     private static int minFoodAreaSize = 50;
     private static int maxFoodAreaSize = 200;
     private static int minFoodAreaDistance = 300;
     private static int humanCount = 20;
-    private static int humanAreas = 3;
+    private static int humanAreas = 1;
     private static int minHumanAreaSize = 50;
     private static int maxHumanAreaSize = 200;
     private static int minHumanAreaDistance = 500;

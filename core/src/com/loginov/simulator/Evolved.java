@@ -3,6 +3,7 @@ package com.loginov.simulator;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.loginov.simulator.Screen.MenuScreen;
@@ -12,6 +13,7 @@ import com.loginov.simulator.util.ResourceManager;
 
 public class Evolved extends Game {
     private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
     public static Evolved proxy;
     private MenuScreen menu;
     private ResourceManager resourceManager;
@@ -23,6 +25,7 @@ public class Evolved extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
         resourceManager = new ResourceManager();
         proxy = this;
         menu = new MenuScreen(this, resourceManager);
@@ -45,13 +48,14 @@ public class Evolved extends Game {
         super.dispose();
         batch.dispose();
         menu.dispose();
-        simulation.dispose();
     }
 
 
     public SpriteBatch getBatch() {
         return batch;
     }
+
+    public ShapeRenderer getShapeRenderer() { return shapeRenderer; }
 
     public MenuScreen getMenu() {
         return menu;
