@@ -63,10 +63,10 @@ public abstract class UnitGenerator {
      * @param group - simulation screen area
      */
     private void generateArea(Group group){
-        float radius = group.getHeight()/2 - Human.getHumanHeight();
+        float radius = group.getHeight()/2.1f - Human.getHumanHeight();
         Circle circleArea = new Circle();
         circleArea.setRadius(radius);
-        circleArea.setPosition((group.getX()+group.getWidth()/2), (group.getY()+group.getHeight())/2);
+        circleArea.setPosition((group.getX()+group.getWidth()/2), (group.getY()+group.getHeight()/2 + Human.getHumanHeight()));
         areas.add(circleArea);
     }
 

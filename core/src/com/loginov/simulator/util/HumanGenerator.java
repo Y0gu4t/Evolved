@@ -9,6 +9,8 @@ import java.util.ArrayList;
 public class HumanGenerator extends UnitGenerator {
     private ArrayList<Human> humans;
 
+    private ArrayList<Human> children;
+
     public HumanGenerator(Group group) {
         super(group);
         this.minAreaSize = SimulationParams.getMinHumanAreaSize();
@@ -16,6 +18,7 @@ public class HumanGenerator extends UnitGenerator {
         this.minDistance = SimulationParams.getMinHumanAreaDistance();
         this.amountArea = SimulationParams.getHumanAreas();
         humans = new ArrayList<>();
+        children = new ArrayList<>();
         generateAreas(group);
     }
 
@@ -47,5 +50,16 @@ public class HumanGenerator extends UnitGenerator {
 
     public void add(Human human) {
         humans.add(human);
+    }
+
+    public void prepareChildren(Human human) { children.add(human); }
+
+    public void addChildren() {
+        humans.addAll(children);
+        children.clear();
+    }
+
+    public boolean children(){
+        return children.size() > 0;
     }
 }

@@ -2,13 +2,14 @@ package com.loginov.simulator.Listeners;
 
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.loginov.simulator.Enums.ApplicationState;
 import com.loginov.simulator.Screen.SimulatorScreen;
 
 
 public class PausedListener extends ClickListener {
-    private SimulatorScreen.SimulationState screen;
+    private ApplicationState screen;
 
-    public PausedListener(SimulatorScreen.SimulationState screen){
+    public PausedListener(ApplicationState screen){
         this.screen = screen;
     }
 
@@ -17,6 +18,6 @@ public class PausedListener extends ClickListener {
 
     }
 
-    public void setSimulationState(SimulatorScreen.SimulationState state){
+    public void setSimulationState(ApplicationState state){
     }
 }

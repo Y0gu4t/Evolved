@@ -20,6 +20,9 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.loginov.simulator.Actor.Human;
+import com.loginov.simulator.Enums.ApplicationState;
+import com.loginov.simulator.Enums.HumanState;
+import com.loginov.simulator.Enums.SimulationState;
 import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.FoodGenerator;
 import com.loginov.simulator.util.HumanGenerator;
@@ -29,14 +32,9 @@ import com.loginov.simulator.util.SimulationParams;
 import java.util.ArrayList;
 
 public class SimulatorScreen extends BaseScreen {
-
-    public enum SimulationState{
-        SIMULATION_RUNNING,
-        SIMULATION_PAUSED
-    }
-
     private BaseScreen previousScreen;
     private InputMultiplexer multiplexer;
+    private ApplicationState applicationState;
     private SimulationState simulationState;
     private Viewport apiPort;
     private Table infoTable;
@@ -45,7 +43,7 @@ public class SimulatorScreen extends BaseScreen {
     private HumanGenerator humanGenerator;
     private  ShapeRenderer shapeRenderer;
     private float simulatorTime = 0f;
-    public float generatePeriod = 10f;
+    private int daysPast = 0;
     public float generateTime = 0f;
     public static float simulationSpeed = 0.0f;
 
@@ -53,7 +51,8 @@ public class SimulatorScreen extends BaseScreen {
         super(proxy, resourceManager);
         this.previousScreen = previousScreen;
         // set running state
-        setSimulationState(SimulationState.SIMULATION_RUNNING);
+        setApplicationState(ApplicationState.RUNNING);
+        simulationState = SimulationState.DAY;
         // set camera
         apiCam = new OrthographicCamera();
         apiCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -120,28 +119,39 @@ public class SimulatorScreen extends BaseScreen {
     public void updateRunning(float delta){
         simulatorTime += delta * simulationSpeed;
         generateTime += delta * simulationSpeed;
-        if (generateTime >= generatePeriod) {
-
-            generateTime = 0;
+        if (generateTime >= simulationState.getDuration()) {
+            switch (simulationState) {
+                case NIGHT:
+                    daysPast++;
+                    for (Human h : humanGenerator.getHumans()) {
+                        h.updateAge();
+                        h.updateAgesAfterChildbirth();
+                        h.setState(HumanState.FIND_FOOD);
+                    }
+                    break;
+                case DAY:
+                    break;
+            }
             foodGenerator.generate(SimulationParams.getFoodAdd(), resourceManager);
             satietyUpdate(SimulationParams.getDeltaSatiety());
-            // ArrayList<Human> humansTmp = new ArrayList<>();
-            for (Human h : humanGenerator.getHumans()) {
-                h.updateAge();
-                h.updateAgesAfterChildbirth();
-                h.setState(Human.HumanState.FIND_FOOD);
-            }
-            // humanGenerator.add(humansTmp);
-            // humansTmp.clear();
+            changeSimulationState();
         }
 
-        // TODO: problem with new humans
-        // TODO: ищут, пока не найдут одну. Если вечер и
-        //  ничего не нашли, то принудительно возвращаются.
-        //  Далее следующий цикл, проверка на голод (смерть, размножение)
-        //  Нового человечка расположить рядом с родителем
         for (Human h: humanGenerator.getHumans()) {
-            h.operate(foodGenerator, humanGenerator);
+            h.operate(foodGenerator, humanGenerator, simulationState);
+        }
+        humanGenerator.addChildren();
+    }
+
+    private void changeSimulationState(){
+        generateTime = 0;
+        switch (simulationState){
+            case DAY:
+                simulationState = SimulationState.NIGHT;
+                break;
+            case NIGHT:
+                simulationState = SimulationState.DAY;
+                break;
         }
     }
 
@@ -177,11 +187,11 @@ public class SimulatorScreen extends BaseScreen {
      * @// FIXME: 27.04.2023 need to rework
      */
     public void update(float delta){
-        switch(simulationState){
-            case SIMULATION_RUNNING:
+        switch(applicationState){
+            case RUNNING:
                 updateRunning(delta);
                 break;
-            case SIMULATION_PAUSED:
+            case PAUSED:
                 updatePaused(delta);
                 break;
         }
@@ -190,17 +200,17 @@ public class SimulatorScreen extends BaseScreen {
     /**
      * set new simulation's state
      */
-    public void setSimulationState(SimulationState state){
+    public void setApplicationState(ApplicationState state){
         switch (state) {
-            case SIMULATION_RUNNING:
-                simulationState = SimulationState.SIMULATION_RUNNING;
+            case RUNNING:
+                applicationState = ApplicationState.RUNNING;
                 break;
-            case SIMULATION_PAUSED:
-                if(simulationState == SimulationState.SIMULATION_PAUSED){
-                    simulationState = SimulationState.SIMULATION_RUNNING;
+            case PAUSED:
+                if(applicationState == ApplicationState.PAUSED){
+                    applicationState = ApplicationState.RUNNING;
                 }
-                else if(simulationState == SimulationState.SIMULATION_RUNNING){
-                    simulationState = SimulationState.SIMULATION_PAUSED;
+                else if(applicationState == ApplicationState.RUNNING){
+                    applicationState = ApplicationState.PAUSED;
                 }
                 break;
         }
@@ -223,6 +233,7 @@ public class SimulatorScreen extends BaseScreen {
         final TextArea textArea = createTextArea("", infoTable.getWidth(), infoTable.getHeight()/4, 0, 50, true, true, infoTable);
         Actor thisTextArea = infoTable.getCells().get(0).getActor();
         thisTextArea.addAction(new Action() {
+            @SuppressWarnings("DefaultLocale")
             @Override
             public boolean act(float delta) {
                 float avgSatiety = 0f;
@@ -237,9 +248,11 @@ public class SimulatorScreen extends BaseScreen {
                 avgAge /= humanGenerator.getHumans().size();
                 avgMetabolism /= humanGenerator.getHumans().size();
 
-                textArea.setText("Simulation time: " + (int) simulatorTime +
-                                "\nPeople in simulation: " + humanGenerator.getHumans().size() +
-                                "\nFood in simulation: " + foodGenerator.getFood().size() +
+                textArea.setText(String.format("Simulation time: %d", (int) simulatorTime) +
+                                String.format("\nTimes of day: %s", simulationState) +
+                                String.format("\nDays past: %d", daysPast) +
+                                String.format("\nPeople in simulation: %d", humanGenerator.getHumans().size()) +
+                                String.format("\nFood in simulation: %d", foodGenerator.getFood().size()) +
                                 String.format("\nAverage satiety: %.2f", avgSatiety) +
                                 String.format("\nAverage age: %.2f", avgAge) +
                                 String.format("\nAverage meta: %.2f", avgMetabolism));
@@ -273,7 +286,7 @@ public class SimulatorScreen extends BaseScreen {
         thisButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
-                setSimulationState(SimulationState.SIMULATION_PAUSED);
+                setApplicationState(ApplicationState.PAUSED);
             }
         });
     }
@@ -293,7 +306,7 @@ public class SimulatorScreen extends BaseScreen {
 
     private void handleGroup(){
         group.setBounds(infoTable.getWidth()+ 20, 20, stage.getWidth() - infoTable.getWidth() - 30, stage.getHeight() - 30);
-        //group.setDebug(true);
+        group.setDebug(false);
     }
 
     private void debugAreas(ArrayList<Circle> areas){
