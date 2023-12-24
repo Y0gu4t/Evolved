@@ -1,3 +1,16 @@
+# 1.0.3 (2023-12-15)
+## Features:
+* **Human** this is now an abstract class and the "operate" function is abstract. The "draw" function has been impoved and now it also draws the amount of food a person has
+* **Collect.java** new interface, has functions: findFood, collect and getFoodToEat
+* **Steal.java** new interface, has functions: findActor, steal, addVictim
+* **Collector.java** new Human.java class child. This type of human only collects food and imlements interface Collect.java
+* **Thief.java** new Human.java class child. This type of human collects food or steals food from other and imlements interfaces Collect.java, Steal.java
+* **Warrior.java** new Human.java class child. This type of human only steals food from other and imlements interface Steal.java
+* **SettingsScreen.java** add new textAreas for new human's types
+* **HumanGenerator.java** rework "defineArea" function for new human's types, "prepareChildren" function (now the children's home is located at a random distance from their parents) ([e44feb4](https://github.com/Y0gu4t/Evolved/commit/e44feb4cfc094432342771a3103b7c1430406b87))
+
+
+
 # 1.0.2 (2023-10-13)
 ## Features:
 * **Human.java:** add defineState function (DAY, NIGHT), update findFood, operate giveBirthOpportunity functions
