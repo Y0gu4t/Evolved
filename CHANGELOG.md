@@ -3,7 +3,7 @@
 * **Human.java:** add defineState function (DAY, NIGHT), update findFood, operate giveBirthOpportunity functions
 * **Enums:** add ApplicationState, HumanState and SimulationState enums
 * **SimulationScreen.java:** rework updateRunning function (now the generation cycle depends on the time of day), add changeSimulationState function,  update information output
-* **HumanGeneretar.java:** add prepareChildren function
+* **HumanGeneretar.java:** add prepareChildren function ([fdbe3bd](https://github.com/Y0gu4t/Evolved/commit/fdbe3bd9ab909d41849d5e7e701257c34012d0b0))
 
 
 # 1.0.1 (2023-10-06)

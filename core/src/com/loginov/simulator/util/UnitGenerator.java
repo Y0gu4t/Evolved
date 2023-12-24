@@ -76,9 +76,7 @@ public abstract class UnitGenerator {
         }
     }
 
-    protected void defineArea(ResourceManager resourceManager){
-
-    }
+    protected abstract void defineArea(ResourceManager resourceManager);
 
     public ArrayList<Circle> getAreas() {
         return areas;

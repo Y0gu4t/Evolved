@@ -8,9 +8,9 @@ import com.badlogic.gdx.math.Vector2;
 /** A class describing any object used in the simulation
  * @author loginov0203@gmail.com */
 public abstract class WorldObject {
-    private final Vector2 position;
+    protected Vector2 position;
     private final Rectangle bounds;
-    private Texture texture;
+    protected Texture texture;
 
     /** Constructs an object with given position and dimensions */
     public WorldObject(Texture texture, float x, float y, float width, float height) {
@@ -22,6 +22,8 @@ public abstract class WorldObject {
     public Vector2 getPosition() {
         return position;
     }
+
+    public abstract Vector2 getCenterPosition();
 
     public Rectangle getBounds() {
         return bounds;

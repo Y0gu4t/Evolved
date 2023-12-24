@@ -22,6 +22,9 @@ public class SettingsScreen extends BaseScreen {
     private Table settingsTable;
     private InputMultiplexer multiplexer;
     private TextArea humanCount;
+    private TextArea collectorCount;
+    private TextArea warriorCount;
+    private TextArea thiefCount;
     private TextArea humanAreas;
     private TextArea foodCount;
     private TextArea foodAdd;
@@ -36,7 +39,10 @@ public class SettingsScreen extends BaseScreen {
         apiPort = new ScreenViewport(apiCam);
         stage = new Stage(apiPort);
         settingsTable = createTable();
-        handleHumanCountTextArea();
+        //handleHumanCountTextArea();
+        handleCollectorCountTextArea();
+        handleWarriorCountTextArea();
+        handleThiefCountTextArea();
         handleHumanAreasTextArea();
         handleFoodCountTextArea();
         handleFoodAddTextArea();
@@ -52,6 +58,21 @@ public class SettingsScreen extends BaseScreen {
     public void handleHumanCountTextArea(){
         createTextArea("Human count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
         humanCount = createTextArea(String.valueOf(SimulationParams.getHumanCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+    }
+
+    public void handleCollectorCountTextArea(){
+        createTextArea("Collector count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
+        collectorCount = createTextArea(String.valueOf(SimulationParams.getCollectorCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+    }
+
+    public void handleWarriorCountTextArea(){
+        createTextArea("Warrior count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
+        warriorCount = createTextArea(String.valueOf(SimulationParams.getWarriorCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+    }
+
+    public void handleThiefCountTextArea(){
+        createTextArea("Thief count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
+        thiefCount = createTextArea(String.valueOf(SimulationParams.getThiefCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
     }
 
     public void handleHumanAreasTextArea(){
@@ -93,7 +114,10 @@ public class SettingsScreen extends BaseScreen {
         backButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y){
-                SimulationParams.setHumanCount(Integer.parseInt(humanCount.getText()));
+                //SimulationParams.setHumanCount(Integer.parseInt(humanCount.getText()));
+                SimulationParams.setCollectorCount(Integer.parseInt(collectorCount.getText()));
+                SimulationParams.setWarriorCount(Integer.parseInt(warriorCount.getText()));
+                SimulationParams.setThiefCount(Integer.parseInt(thiefCount.getText()));
                 SimulationParams.setHumanAreas(Integer.parseInt(humanAreas.getText()));
                 SimulationParams.setFoodCount(Integer.parseInt(foodCount.getText()));
                 SimulationParams.setFoodAdd(Integer.parseInt(foodAdd.getText()));

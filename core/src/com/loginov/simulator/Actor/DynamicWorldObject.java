@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 /** A class describing dynamic objects used in the simulation
  * @author loginov0203@gmail.com */
 public abstract class DynamicWorldObject extends WorldObject {
-    private Vector2 velocity;
+    protected Vector2 velocity;
 
     /** Constructs a dynamic object with the given components */
     public DynamicWorldObject(Texture texture, float x, float y, float width, float height) {

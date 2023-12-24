@@ -9,6 +9,9 @@ public class SimulationParams {
     private static int maxFoodAreaSize = 200;
     private static int minFoodAreaDistance = 300;
     private static int humanCount = 20;
+    private static int collectorCount = 15;
+    private static int warriorCount = 5;
+    private static int thiefCount = 10;
     private static int humanAreas = 1;
     private static int minHumanAreaSize = 50;
     private static int maxHumanAreaSize = 200;
@@ -70,6 +73,30 @@ public class SimulationParams {
 
     public static void setHumanCount(int humanCount) {
         SimulationParams.humanCount = humanCount;
+    }
+
+    public static int getCollectorCount() {
+        return collectorCount;
+    }
+
+    public static void setCollectorCount(int collectorCount) {
+        SimulationParams.collectorCount = collectorCount;
+    }
+
+    public static int getWarriorCount() {
+        return warriorCount;
+    }
+
+    public static void setWarriorCount(int warriorCount) {
+        SimulationParams.warriorCount = warriorCount;
+    }
+
+    public static int getThiefCount() {
+        return thiefCount;
+    }
+
+    public static void setThiefCount(int thiefCount) {
+        SimulationParams.thiefCount = thiefCount;
     }
 
     public static int getHumanAreas() {
