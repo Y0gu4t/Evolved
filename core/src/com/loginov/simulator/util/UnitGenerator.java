@@ -15,7 +15,7 @@ public abstract class UnitGenerator {
     protected Group group;
     protected ArrayList<Circle> areas;
 
-    protected UnitGenerator(Group group){
+    protected UnitGenerator(Group group) {
         this.group = group;
         areas = new ArrayList<>();
     }
@@ -24,14 +24,15 @@ public abstract class UnitGenerator {
      * create several (amountArea) circular area
      * with random coordinates and size
      * in the group
+     *
      * @param group - simulation screen area
      */
-    public void generateAreas(Group group){
-        if (amountArea == 1){
+    public void generateAreas(Group group) {
+        if (amountArea == 1) {
             generateArea(group);
             return;
         }
-        for(int i=0; i < amountArea; i++){
+        for (int i = 0; i < amountArea; i++) {
             // randomize new area
             float areaSize = MathUtils.random(minAreaSize, maxAreaSize);
             Circle circleArea = new Circle();
@@ -60,18 +61,19 @@ public abstract class UnitGenerator {
 
     /**
      * create one large circular area in the center of the group
+     *
      * @param group - simulation screen area
      */
-    private void generateArea(Group group){
-        float radius = group.getHeight()/2.1f - Human.getHumanHeight();
+    private void generateArea(Group group) {
+        float radius = group.getHeight() / 2.1f - Human.getHumanHeight();
         Circle circleArea = new Circle();
         circleArea.setRadius(radius);
-        circleArea.setPosition((group.getX()+group.getWidth()/2), (group.getY()+group.getHeight()/2 + Human.getHumanHeight()));
+        circleArea.setPosition((group.getX() + group.getWidth() / 2), (group.getY() + group.getHeight() / 2 + Human.getHumanHeight()));
         areas.add(circleArea);
     }
 
-    public void generate(int count, ResourceManager resourceManager){
-        for(int i=0; i<count; i++){
+    public void generate(int count, ResourceManager resourceManager) {
+        for (int i = 0; i < count; i++) {
             defineArea(resourceManager);
         }
     }

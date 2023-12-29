@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.loginov.simulator.Clan.Clan;
 import com.loginov.simulator.Enums.HumanState;
 import com.loginov.simulator.Enums.SimulationState;
 import com.loginov.simulator.Screen.SimulatorScreen;
@@ -15,7 +16,6 @@ import com.loginov.simulator.util.HumanGenerator;
 
 /**
  * Main class considered in simulation
- * <p>
  * Each human has a satiety level, metabolism, movement speed,
  * minimum and maximum age for reproduction, breeding interval, lifespan value
  *
@@ -33,6 +33,7 @@ public abstract class Human extends DynamicWorldObject {
     private final int YEARS_BETWEEN_BIRTHS = 3;
     protected final float ACCELERATION;
     public final int MAX_FOOD_COUNT = 5;
+    protected Clan clan;
     protected int foodCount = 0;
     protected Texture satietyLineTexture;
     protected Texture foodLineTexture;

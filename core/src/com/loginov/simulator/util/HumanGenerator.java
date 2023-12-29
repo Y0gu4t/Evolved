@@ -8,6 +8,8 @@ import com.loginov.simulator.Actor.Collector;
 import com.loginov.simulator.Actor.Human;
 import com.loginov.simulator.Actor.Thief;
 import com.loginov.simulator.Actor.Warrior;
+import com.loginov.simulator.Clan.Clan;
+import com.loginov.simulator.Clan.Sector;
 
 import java.util.ArrayList;
 
@@ -56,15 +58,37 @@ public class HumanGenerator extends UnitGenerator {
         }
     }
 
-    public void generate(int collectorCount, int warriorCount, int thiefCount, ResourceManager resourceManager) {
-        for (int i = 0; i < warriorCount; i++) {
-            defineArea(resourceManager, "warrior");
+    private void defineArea(Clan clan, ResourceManager resourceManager, String human) {
+        Sector territory = clan.getTerritory();
+        float randomAngle = MathUtils.random(territory.start * MathUtils.degreesToRadians,
+                territory.getEnd() * MathUtils.degreesToRadians);
+        float x = territory.x - Human.getHumanWidth() / 2 + (territory.radius - Human.getHumanHeight()) * MathUtils.cos(randomAngle);
+        float y = territory.y - Human.getHumanHeight() / 2 + (territory.radius - Human.getHumanHeight()) * MathUtils.sin(randomAngle);
+
+        switch (human) {
+            case "collector":
+                humans.add(new Collector(resourceManager.humanTexture, x, y, clan, SimulationParams.getMETABOLISM()));
+                break;
+            case "warrior":
+                humans.add(new Warrior(resourceManager.humanTexture, x, y, clan, SimulationParams.getMETABOLISM()));
+                break;
+            case "thief":
+                humans.add(new Thief(resourceManager.humanTexture, x, y, clan, SimulationParams.getMETABOLISM()));
+                break;
         }
-        for (int i = 0; i < collectorCount; i++) {
-            defineArea(resourceManager, "collector");
-        }
-        for (int i = 0; i < thiefCount; i++) {
-            defineArea(resourceManager, "thief");
+    }
+
+    public void generate(ClanFactory clanFactory, ResourceManager resourceManager) {
+        for (Clan clan : clanFactory.getClans()) {
+            for (int i = 0; i < SimulationParams.getWarriorCount(); i++) {
+                defineArea(clan, resourceManager, "warrior");
+            }
+            for (int i = 0; i < SimulationParams.getCollectorCount(); i++) {
+                defineArea(clan, resourceManager, "collector");
+            }
+            for (int i = 0; i < SimulationParams.getThiefCount(); i++) {
+                defineArea(clan, resourceManager, "thief");
+            }
         }
     }
 
@@ -106,7 +130,6 @@ public class HumanGenerator extends UnitGenerator {
                         / (area.radius - Human.getHumanHeight())) + randomAngle;
         float x = area.x - Human.getHumanWidth() / 2 + (area.radius - Human.getHumanHeight()) * MathUtils.cos(angle);
         float y = area.y - Human.getHumanHeight() / 2 + (area.radius - Human.getHumanHeight()) * MathUtils.sin(angle);
-
         human.setHome(new Vector2(x, y));
         children.add(human);
     }

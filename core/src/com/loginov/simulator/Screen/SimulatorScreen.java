@@ -23,10 +23,13 @@ import com.loginov.simulator.Actor.Collector;
 import com.loginov.simulator.Actor.Human;
 import com.loginov.simulator.Actor.Thief;
 import com.loginov.simulator.Actor.Warrior;
+import com.loginov.simulator.Clan.Clan;
+import com.loginov.simulator.Clan.Sector;
 import com.loginov.simulator.Enums.ApplicationState;
 import com.loginov.simulator.Enums.HumanState;
 import com.loginov.simulator.Enums.SimulationState;
 import com.loginov.simulator.Evolved;
+import com.loginov.simulator.util.ClanFactory;
 import com.loginov.simulator.util.FoodGenerator;
 import com.loginov.simulator.util.HumanGenerator;
 import com.loginov.simulator.util.ResourceManager;
@@ -44,7 +47,7 @@ public class SimulatorScreen extends BaseScreen {
     private Group group;
     private FoodGenerator foodGenerator;
     private HumanGenerator humanGenerator;
-    private ShapeRenderer shapeRenderer;
+    private ClanFactory clanFactory;
     private float simulatorTime = 0f;
     private int daysPast = 0;
     public static float generateTime = 0f;
@@ -65,7 +68,6 @@ public class SimulatorScreen extends BaseScreen {
         stage = new Stage(apiPort);
         infoTable = new Table();
         group = new Group();
-        shapeRenderer = new ShapeRenderer();
 
         // put infoTable on the screen
         handleInfoTable();
@@ -81,10 +83,11 @@ public class SimulatorScreen extends BaseScreen {
         stage.addActor(group);
         // generate simulation objects
         humanGenerator = new HumanGenerator(group);
+        clanFactory = new ClanFactory();
         foodGenerator = new FoodGenerator(group);
+        clanFactory.createClans(humanGenerator);
         foodGenerator.generate(SimulationParams.getFoodCount(), resourceManager);
-        humanGenerator.generate(SimulationParams.getCollectorCount(), SimulationParams.getWarriorCount(),
-                SimulationParams.getThiefCount(), resourceManager);
+        humanGenerator.generate(clanFactory, resourceManager);
         // set input
         multiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(multiplexer);
@@ -177,10 +180,22 @@ public class SimulatorScreen extends BaseScreen {
         Gdx.gl.glClearColor(1f, 1f, 1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         proxy.getBatch().setProjectionMatrix(apiCam.combined);
+        proxy.getShapeRenderer().setProjectionMatrix(apiCam.combined);
 
         // show simulation areas
-        debugAreas(humanGenerator.getAreas());
+        //debugAreas(humanGenerator.getAreas());
         // debugAreas(foodGenerator.getAreas());
+
+        proxy.getShapeRenderer().setAutoShapeType(true);
+        proxy.getShapeRenderer().begin(ShapeRenderer.ShapeType.Filled);
+
+        for (Clan clan: clanFactory.getClans()) {
+            Sector territory = clan.getTerritory();
+            proxy.getShapeRenderer().setColor(territory.color);
+            proxy.getShapeRenderer().arc(territory.x, territory.y, territory.radius, territory.start, territory.degree);
+        }
+
+        proxy.getShapeRenderer().end();
 
         // show a human's path to the goal
         for (int i = 0; i < humanGenerator.getHumans().size(); i++) {
@@ -359,9 +374,8 @@ public class SimulatorScreen extends BaseScreen {
     }
 
     private void debugAreas(ArrayList<Circle> areas) {
-        proxy.getShapeRenderer().setProjectionMatrix(apiCam.combined);
+        proxy.getShapeRenderer().setAutoShapeType(true);
         proxy.getShapeRenderer().begin(ShapeRenderer.ShapeType.Filled);
-
         proxy.getShapeRenderer().setColor(Color.CYAN);
         for (Circle area : areas) {
             proxy.getShapeRenderer().circle(area.x, area.y, area.radius);

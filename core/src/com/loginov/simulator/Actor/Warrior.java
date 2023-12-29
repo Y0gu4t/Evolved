@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.loginov.simulator.Actor.Interfaces.Steal;
+import com.loginov.simulator.Clan.Clan;
 import com.loginov.simulator.Enums.HumanState;
 import com.loginov.simulator.Enums.SimulationState;
 import com.loginov.simulator.Screen.SimulatorScreen;
@@ -23,6 +24,11 @@ public class Warrior extends Human implements Steal {
         super(texture, x, y, METABOLISM,1.5f);
         checkedVictims = new ArrayList<>();
         checkedVictims.add(this);
+    }
+
+    public Warrior(Texture texture, float x, float y, Clan clan, float METABOLISM) {
+        this(texture, x, y, METABOLISM);
+        this.clan = clan;
     }
 
     @Override

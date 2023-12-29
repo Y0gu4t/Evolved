@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.loginov.simulator.Actor.Interfaces.Collect;
 import com.loginov.simulator.Actor.Interfaces.Steal;
+import com.loginov.simulator.Clan.Clan;
 import com.loginov.simulator.Enums.HumanState;
 import com.loginov.simulator.Enums.SimulationState;
 import com.loginov.simulator.Screen.SimulatorScreen;
@@ -25,6 +26,11 @@ public class Thief extends Human implements Collect, Steal {
         checkedVictims = new ArrayList<>();
         checkedVictims.add(this);
         satietyLineTexture = createTexture((int) getBounds().width, 10, Color.YELLOW);
+    }
+
+    public Thief(Texture texture, float x, float y, Clan clan, float METABOLISM) {
+        this(texture, x, y, METABOLISM);
+        this.clan = clan;
     }
 
     @Override

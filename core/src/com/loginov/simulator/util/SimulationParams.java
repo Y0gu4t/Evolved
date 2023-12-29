@@ -1,5 +1,7 @@
 package com.loginov.simulator.util;
 
+import com.badlogic.gdx.graphics.Color;
+
 public class SimulationParams {
 
     private static int foodCount = 30;
@@ -8,6 +10,7 @@ public class SimulationParams {
     private static int minFoodAreaSize = 50;
     private static int maxFoodAreaSize = 200;
     private static int minFoodAreaDistance = 300;
+    private static int clanCount = 2;
     private static int humanCount = 20;
     private static int collectorCount = 15;
     private static int warriorCount = 5;
@@ -65,6 +68,14 @@ public class SimulationParams {
 
     public static void setMinFoodAreaDistance(int minFoodAreaDistance) {
         SimulationParams.minFoodAreaDistance = minFoodAreaDistance;
+    }
+
+    public static int getClanCount() {
+        return clanCount;
+    }
+
+    public static void setClanCount(int clanCount) {
+        SimulationParams.clanCount = clanCount;
     }
 
     public static int getHumanCount() {
