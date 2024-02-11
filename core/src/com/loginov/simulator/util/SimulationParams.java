@@ -1,26 +1,45 @@
 package com.loginov.simulator.util;
 
 import com.badlogic.gdx.graphics.Color;
+import com.loginov.simulator.Actor.Collector;
+import com.loginov.simulator.Actor.Human;
+import com.loginov.simulator.Actor.Thief;
+import com.loginov.simulator.Actor.Warrior;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SimulationParams {
 
-    private static int foodCount = 30;
-    private static int foodAdd = 10;
+    private static int foodCount = 60;
+    private static int foodAdd = 20;
     private static int foodAreas = 1;
     private static int minFoodAreaSize = 50;
     private static int maxFoodAreaSize = 200;
     private static int minFoodAreaDistance = 300;
     private static int clanCount = 2;
     private static int humanCount = 20;
-    private static int collectorCount = 15;
-    private static int warriorCount = 5;
-    private static int thiefCount = 10;
+    private static int collectorCount = 5;
+    private static int warriorCount = 2;
+    private static int thiefCount = 3;
     private static int humanAreas = 1;
     private static int minHumanAreaSize = 50;
     private static int maxHumanAreaSize = 200;
     private static int minHumanAreaDistance = 500;
     private static int deltaSatiety = -10;
     private static final float METABOLISM = (float) (Math.random() + 0.5f);
+
+    private static final Map<Class<? extends Human>, Color> humanColors =
+            new HashMap<Class<? extends Human>, Color>() {{
+                put(Collector.class, new Color(0x5dbb63ff));
+                put(Thief.class, new Color(0xfcf4a3ff));
+                put(Warrior.class, new Color(0xb90e0aff));
+            }};
+    private static final List<Color> clanColors = Arrays.asList(
+            new Color(0x80e8e2ff), // #20b2aa
+            new Color(0xf7bfbfff)); // #f08080
 
     public static int getFoodCount() {
         return foodCount;
@@ -154,4 +173,11 @@ public class SimulationParams {
         return METABOLISM;
     }
 
+    public static List<Color> getClanColors() {
+        return clanColors;
+    }
+
+    public static Map<Class<? extends Human>, Color> getHumanColors() {
+        return humanColors;
+    }
 }

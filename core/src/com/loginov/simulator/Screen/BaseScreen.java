@@ -2,15 +2,21 @@ package com.loginov.simulator.Screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.ResourceManager;
+
+import javax.swing.GroupLayout;
 
 
 public class BaseScreen implements Screen {
@@ -80,18 +86,24 @@ public class BaseScreen implements Screen {
         return table;
     }
 
-    public void createButton(String name, float width, float height, float x, float y, Table table){
-        TextButton button = new TextButton(name, resourceManager.toolSkin, "default");
+    public void createButton(String text, float width, float height, float x, float y, Table table){
+        TextButton button = new TextButton(text, resourceManager.toolSkin, "default");
         table.add(button).width(width).height(height).padLeft(x).padTop(y);
         table.row();
     }
 
-    public TextArea createTextArea(String name, float width, float height, float x, float y, boolean isDisabled, boolean newRow, Table table){
-        TextArea textArea = new TextArea(name, resourceManager.toolSkin, "default");
-        textArea.setDisabled(isDisabled);
-        table.add(textArea).width(width).height(height).padLeft(x).padTop(y);
+    public TextArea createTextArea(String text, float width, float height, float x, float y, boolean newRow, Table table){
+        TextArea textArea = new TextArea(text, resourceManager.toolSkin, "default");
+        table.add(textArea).width(width).height(height).padRight(x).padBottom(y);
         if(newRow) table.row();
         return textArea;
+    }
+
+    public TextField createTextField(String text, float width, float height, float x, float y, boolean newRow, Table table){
+        TextField textField = new TextField(text, resourceManager.toolSkin, "default");
+        table.add(textField).width(width).height(height).padRight(x).padBottom(y);
+        if(newRow) table.row();
+        return textField;
     }
 
     public Slider createSlider( float width, float height, float x, float y, float min, float max, float stepSize, boolean isVertical, Table table){

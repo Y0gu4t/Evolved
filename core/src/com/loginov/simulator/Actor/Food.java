@@ -2,19 +2,18 @@ package com.loginov.simulator.Actor;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 
 public class Food extends WorldObject {
     private static float satiety = 20f;
-    private static final float FOOD_WIDTH = 10f;
-    private static final float FOOD_HEIGHT = 10f;
+    private static final float FOOD_WIDTH = 15f;
+    private static final float FOOD_HEIGHT = 15f;
 
     public Food(Texture texture, float x, float y) {
         super(texture, x, y, FOOD_WIDTH, FOOD_HEIGHT);
     }
 
     public void draw(SpriteBatch batch) {
-        batch.draw(getTexture(), getPosition().x, getPosition().y, getBounds().width, getBounds().height);
+        batch.draw(getTexture(), position.x, position.y, bounds().width, bounds().height);
     }
 
     public static float getSatiety() {
@@ -34,12 +33,5 @@ public class Food extends WorldObject {
         return "Food{" +
                 "satiety=" + satiety +
                 '}';
-    }
-
-    @Override
-    public Vector2 getCenterPosition() {
-        float x = getPosition().x + FOOD_WIDTH / 2;
-        float y = getPosition().y + FOOD_HEIGHT / 2;
-        return new Vector2(x, y);
     }
 }

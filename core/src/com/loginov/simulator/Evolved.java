@@ -29,11 +29,6 @@ public class Evolved extends Game {
         resourceManager = new ResourceManager();
         proxy = this;
         menu = new MenuScreen(this, resourceManager);
-        /*simulation = new SimulatorScreen();
-        stageMenu = new Stage(new ScreenViewport());
-        stageSimulation = new Stage(new ScreenViewport());*/
-
-        //Gdx.input.setInputProcessor(stageMenu);
         setScreen(menu);
     }
 

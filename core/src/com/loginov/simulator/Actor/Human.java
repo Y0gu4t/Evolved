@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.loginov.simulator.Clan.Clan;
 import com.loginov.simulator.Enums.HumanState;
@@ -13,6 +14,7 @@ import com.loginov.simulator.Enums.SimulationState;
 import com.loginov.simulator.Screen.SimulatorScreen;
 import com.loginov.simulator.util.FoodGenerator;
 import com.loginov.simulator.util.HumanGenerator;
+import com.loginov.simulator.util.SimulationParams;
 
 /**
  * Main class considered in simulation
@@ -48,8 +50,8 @@ public abstract class Human extends DynamicWorldObject {
         age = 0;
         home = new Vector2(x, y);
         state = HumanState.WORK;
-        satietyLineTexture = createTexture((int) getBounds().width, 10, Color.RED);
-        foodLineTexture = createTexture((int) getBounds().width, 10, Color.ORANGE);
+        satietyLineTexture = createTexture((int) bounds().width, 10, SimulationParams.getHumanColors().get(Warrior.class));
+        foodLineTexture = createTexture((int) bounds().width, 10, Color.ORANGE);
         this.METABOLISM = METABOLISM;
         this.ACCELERATION = ACCELERATION;
     }
@@ -62,11 +64,11 @@ public abstract class Human extends DynamicWorldObject {
                 break;
             case NIGHT:
                 if (this.state != HumanState.AT_HOME)
-                    setState(HumanState.GO_HOME);
-                else if (this.giveBirthOpportunity()) {
-                    humanGenerator.prepareChildren(giveBirth(texture));
+                    this.state = HumanState.GO_HOME;
+                /*else if (this.giveBirthOpportunity()) {
+                    humanGenerator.prepareChild(giveBirth(texture));
                     agesAfterChildbirth = 0;
-                }
+                }*/
                 break;
         }
     }
@@ -78,7 +80,7 @@ public abstract class Human extends DynamicWorldObject {
      * @param dy - delta y
      */
     public void move(float dx, float dy) {
-        this.setVelocity(new Vector2(dx, dy));
+        velocity = new Vector2(dx, dy);
     }
 
     /**
@@ -93,9 +95,24 @@ public abstract class Human extends DynamicWorldObject {
         position.add(velocity.x * param * speed, velocity.y * param * speed);
     }
 
+    public void findNearestHome() {
+        float x = position.x - clan.getTerritory().center.x;
+        float y = position.y - clan.getTerritory().center.y;
+        float angleToPoint = MathUtils.atan2(y, x);
+        if (angleToPoint < 0) {
+            angleToPoint += MathUtils.PI2;
+        }
+        angleToPoint *= MathUtils.radDeg;
+        float angle = MathUtils.clamp(angleToPoint,clan.getTerritory().getStart() + 5f, clan.getTerritory().getEnd() - 5f) % 360f;
+        float xHome = clan.getTerritory().center.x + (clan.getTerritory().radius - Human.getHumanWidth() / 2) * MathUtils.cosDeg(angle);
+        float yHome = clan.getTerritory().center.y + (clan.getTerritory().radius - Human.getHumanHeight() / 2) * MathUtils.sinDeg(angle);
+        home = new Vector2(xHome, yHome);
+    }
+
     public void goHome() {
         if (Math.sqrt(Math.pow(position.x - home.x, 2) + Math.pow(position.y - home.y, 2)) < 3 * SimulatorScreen.simulationSpeed) {
-            setState(HumanState.AT_HOME);
+            state = HumanState.AT_HOME;
+            giveFoodToClan();
         } else {
             float dist = (float) Math.sqrt(Math.pow(position.x - home.x, 2) + Math.pow(position.y - home.y, 2));
             float dx = home.x - position.x;
@@ -109,8 +126,6 @@ public abstract class Human extends DynamicWorldObject {
                 agesAfterChildbirth >= YEARS_BETWEEN_BIRTHS)) && satiety >= MAX_SATIETY / 2;
     }
 
-    protected abstract Human giveBirth(Texture texture);
-
     protected Texture createTexture(int width, int height, Color color) {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
@@ -120,19 +135,40 @@ public abstract class Human extends DynamicWorldObject {
         return texture;
     }
 
-    public void draw(SpriteBatch batch) {
-        batch.draw(satietyLineTexture, position.x, position.y + getBounds().height + 2,
-                getBounds().width * (satiety / MAX_SATIETY), 5);
-        batch.draw(foodLineTexture, position.x, position.y + getBounds().height + 7,
-                getBounds().width * ((float) foodCount / (float) MAX_FOOD_COUNT), 2);
-        batch.draw(texture, position.x, position.y, getBounds().width, getBounds().height);
+    protected void giveFoodToClan() {
+        clan.addFood(foodCount);
+        foodCount = 0;
     }
 
-    @Override
-    public Vector2 getCenterPosition() {
-        float x = getPosition().x + HUMAN_WIDTH / 2;
-        float y = getPosition().y + HUMAN_HEIGHT / 2;
-        return new Vector2(x, y);
+    public void eat(int foodFromClan) {
+        int requiredAmountOfFood = Math.min(foodFromClan, (int) ((MAX_SATIETY - satiety) / Food.getSatiety()));
+        this.setSatiety(requiredAmountOfFood * Food.getSatiety());
+        clan.takeFood(requiredAmountOfFood);
+    }
+
+    public void joinClan(){
+        clan.addMember(this);
+    }
+
+    public void draw(SpriteBatch batch) {
+        batch.draw(satietyLineTexture, position.x, position.y + bounds().height + 4,
+                bounds().width * (satiety / MAX_SATIETY), 5);
+        batch.draw(foodLineTexture, position.x, position.y + bounds().height + 9,
+                bounds().width * ((float) foodCount / (float) MAX_FOOD_COUNT), 4);
+        batch.draw(texture, position.x, position.y, bounds().width, bounds().height);
+    }
+
+    public float getPolarAngle() {
+        float angle = MathUtils.atan2(getCenterPosition().y - clan.getTerritory().center.y,
+                getCenterPosition().x - clan.getTerritory().center.x);
+        if (angle < 0) {
+            angle += MathUtils.PI2;
+        }
+        return angle;
+    }
+
+    public float getPolarAngleDeg() {
+        return getPolarAngle() * MathUtils.radDeg;
     }
 
     public float getSatiety() {
@@ -141,11 +177,6 @@ public abstract class Human extends DynamicWorldObject {
 
     public void setSatiety(float satiety) {
         this.satiety = Math.min(this.satiety + satiety, MAX_SATIETY);
-    }
-
-    public Human satiety(float satiety) {
-        this.satiety = Math.min(this.satiety + satiety, MAX_SATIETY);
-        return this;
     }
 
     public static float getHumanWidth() {
@@ -193,6 +224,10 @@ public abstract class Human extends DynamicWorldObject {
         this.home = home;
     }
 
+    public void setAgesAfterChildbirth(int agesAfterChildbirth) {
+        this.agesAfterChildbirth = agesAfterChildbirth;
+    }
+
     public int getFoodCount() {
         return foodCount;
     }
@@ -207,6 +242,10 @@ public abstract class Human extends DynamicWorldObject {
 
     public float getACCELERATION() {
         return ACCELERATION;
+    }
+
+    public Clan getClan() {
+        return clan;
     }
 
     public abstract void debug(ShapeRenderer shapeRenderer, OrthographicCamera apiCam);

@@ -408,7 +408,7 @@
 },
 "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
 	"default": {
-		"font": "button",
+		"font": "title",
 		"fontColor": "white",
 		"downFontColor": "white",
 		"overFontColor": "gray",
@@ -419,8 +419,8 @@
 },
 "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
 	"default": {
-		"font": "font",
-		"fontColor": "white",
+		"font": "button",
+		"fontColor": "black",
 		"background": "textfield-c",
 		"cursor": "white",
 		"selection": "selection"

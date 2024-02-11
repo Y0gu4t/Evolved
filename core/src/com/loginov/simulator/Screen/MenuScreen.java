@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -67,7 +68,7 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
-        Gdx.gl.glClearColor(0.8f,0.8f,0.8f,1);
+        Gdx.gl.glClearColor(250/255f, 235/255f, 215/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         proxy.getBatch().setProjectionMatrix(apiCamera.combined);
         stage.act(delta);

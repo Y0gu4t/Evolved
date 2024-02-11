@@ -21,6 +21,9 @@ public class SettingsScreen extends BaseScreen {
     private Stage stage;
     private Table settingsTable;
     private InputMultiplexer multiplexer;
+    private final float textFieldHeight = 50f;
+    private final float textAreaHeight = 30f;
+    private final float textSpace = 25f;
     private TextArea humanCount;
     private TextArea collectorCount;
     private TextArea warriorCount;
@@ -56,43 +59,59 @@ public class SettingsScreen extends BaseScreen {
     }
 
     public void handleHumanCountTextArea(){
-        createTextArea("Human count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        humanCount = createTextArea(String.valueOf(SimulationParams.getHumanCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Human count", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, true, settingsTable);
+        humanCount = createTextArea(String.valueOf(SimulationParams.getHumanCount()), settingsTable.getWidth()/6, 40,
+                textSpace, textSpace, false, settingsTable);
     }
 
     public void handleCollectorCountTextArea(){
-        createTextArea("Collector count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        collectorCount = createTextArea(String.valueOf(SimulationParams.getCollectorCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Collector count", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, false, settingsTable);
+        collectorCount = createTextArea(String.valueOf(SimulationParams.getCollectorCount()), settingsTable.getWidth()/10, textAreaHeight,
+                textSpace, textSpace, true, settingsTable);
     }
 
     public void handleWarriorCountTextArea(){
-        createTextArea("Warrior count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        warriorCount = createTextArea(String.valueOf(SimulationParams.getWarriorCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Warrior count", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, false, settingsTable);
+        warriorCount = createTextArea(String.valueOf(SimulationParams.getWarriorCount()), settingsTable.getWidth()/10, textAreaHeight,
+                textSpace, textSpace, true, settingsTable);
     }
 
     public void handleThiefCountTextArea(){
-        createTextArea("Thief count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        thiefCount = createTextArea(String.valueOf(SimulationParams.getThiefCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Thief count", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, false, settingsTable);
+        thiefCount = createTextArea(String.valueOf(SimulationParams.getThiefCount()), settingsTable.getWidth()/10, textAreaHeight,
+                textSpace, textSpace, true, settingsTable);
     }
 
     public void handleHumanAreasTextArea(){
-        createTextArea("Human areas", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        humanAreas = createTextArea(String.valueOf(SimulationParams.getHumanAreas()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Human areas", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, false, settingsTable);
+        humanAreas = createTextArea(String.valueOf(SimulationParams.getHumanAreas()), settingsTable.getWidth()/10, textAreaHeight,
+                textSpace, textSpace, true, settingsTable);
     }
 
     public void handleFoodCountTextArea(){
-        createTextArea("Food count", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        foodCount = createTextArea(String.valueOf(SimulationParams.getFoodCount()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Food count", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, false, settingsTable);
+        foodCount = createTextArea(String.valueOf(SimulationParams.getFoodCount()), settingsTable.getWidth()/10, textAreaHeight,
+                textSpace, textSpace, true, settingsTable);
     }
 
     public void handleFoodAddTextArea(){
-        createTextArea("Food add", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        foodAdd = createTextArea(String.valueOf(SimulationParams.getFoodAdd()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Food add", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, false, settingsTable);
+        foodAdd = createTextArea(String.valueOf(SimulationParams.getFoodAdd()), settingsTable.getWidth()/10, textAreaHeight,
+                textSpace, textSpace, true, settingsTable);
     }
 
     public void handleFoodAreasTextArea(){
-        createTextArea("Food areas", settingsTable.getWidth()/10, 25, 0, 25, true, false, settingsTable);
-        foodAreas = createTextArea(String.valueOf(SimulationParams.getFoodAreas()), settingsTable.getWidth()/6, 25, 5, 25, false, true, settingsTable);
+        createTextField("Food areas", settingsTable.getWidth()/10, textFieldHeight,
+                textSpace, textSpace, false, settingsTable);
+        foodAreas = createTextArea(String.valueOf(SimulationParams.getFoodAreas()), settingsTable.getWidth()/10, textAreaHeight,
+                textSpace, textSpace, true, settingsTable);
     }
 
     public void handleBackButton(){
@@ -133,7 +152,7 @@ public class SettingsScreen extends BaseScreen {
     @Override
     public void render(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
-        Gdx.gl.glClearColor(0.8f,0.8f,0.8f,1);
+        Gdx.gl.glClearColor(250/255f, 235/255f, 215/255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         proxy.getBatch().setProjectionMatrix(apiCam.combined);
         stage.act(delta);

@@ -1,14 +1,23 @@
 package com.loginov.simulator.Clan;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
+import com.loginov.simulator.Actor.Collector;
 import com.loginov.simulator.Actor.Human;
+import com.loginov.simulator.Actor.Thief;
+import com.loginov.simulator.Actor.Warrior;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Clan {
     private ArrayList<Human> members;
     private int foodStorage;
     private Sector territory;
+    private Clan rightEnemy;
+    private Clan leftEnemy;
+    private Map<Class<? extends Human>, Float> humansRatioMap;
 
     public Clan(ArrayList<Human> members, int foodStorage, Sector territory) {
         this.members = members;
@@ -16,10 +25,27 @@ public class Clan {
         this.territory = territory;
     }
 
-    public Clan (Sector territory) {
+    public Clan(Sector territory) {
         members = new ArrayList<>();
+        humansRatioMap = new HashMap<>();
         foodStorage = 0;
         this.territory = territory;
+    }
+
+    public Clan getRightEnemy() {
+        return rightEnemy;
+    }
+
+    public void setRightEnemy(Clan rightEnemy) {
+        this.rightEnemy = rightEnemy;
+    }
+
+    public Clan getLeftEnemy() {
+        return leftEnemy;
+    }
+
+    public void setLeftEnemy(Clan leftEnemy) {
+        this.leftEnemy = leftEnemy;
     }
 
     public void addMember(Human human) {
@@ -38,12 +64,74 @@ public class Clan {
         return territory;
     }
 
+    public void addFood(int foodAmount) {
+        foodStorage += foodAmount;
+    }
+
+    public void takeFood(int foodAmount) {
+        foodStorage -= foodAmount;
+    }
+
+    public void feedMembers() {
+        int foodForEach = foodStorage / members.size();
+        for (Human human : members) {
+            human.eat(foodForEach);
+        }
+
+        for (Human human :
+                members) {
+            if (foodStorage > 0) {
+                if (human.getSatiety() < 50f) {
+                    human.eat(1);
+                }
+            } else break;
+        }
+    }
+
+    public void definePeopleRatio(float collectorRatio, float thiefRatio, float warriorRatio) {
+        collectorRatio = (float) (Math.round(collectorRatio * Math.pow(10, 2)) / Math.pow(10, 2));
+        thiefRatio = (float) (Math.round(thiefRatio * Math.pow(10, 2)) / Math.pow(10, 2));
+        warriorRatio = (float) (Math.round(warriorRatio * Math.pow(10, 2)) / Math.pow(10, 2));
+        humansRatioMap.put(Collector.class, collectorRatio);
+        humansRatioMap.put(Thief.class, thiefRatio);
+        humansRatioMap.put(Warrior.class, warriorRatio);
+    }
+
+    public Map<Class<? extends Human>, Integer> classifyHumansByType(int totalMembers) {
+        Map<Class<? extends Human>, Integer> humansByTypesMap = new HashMap<>();
+        int collectorMembers = (int) (humansRatioMap.get(Collector.class) * totalMembers);
+        int thiefMembers = (int) (humansRatioMap.get(Thief.class) * totalMembers);
+        int warriorMembers = (int) (humansRatioMap.get(Warrior.class) * totalMembers);
+
+        int remainingMembers = totalMembers - (collectorMembers + thiefMembers + warriorMembers);
+
+        for (int i = 0; i < remainingMembers; i++) {
+            if (MathUtils.randomBoolean(0.35f)) {
+                warriorMembers++;
+            } else if (MathUtils.randomBoolean(0.5f)) {
+                thiefMembers++;
+            } else {
+                collectorMembers++;
+            }
+        }
+
+        humansByTypesMap.put(Collector.class, collectorMembers);
+        humansByTypesMap.put(Thief.class, thiefMembers);
+        humansByTypesMap.put(Warrior.class, warriorMembers);
+
+        return humansByTypesMap;
+    }
+
+    public void remove(Human human) {
+        members.remove(human);
+    }
+
     public void draw(ShapeRenderer shapeRenderer) {
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         shapeRenderer.setColor(territory.color);
-        shapeRenderer.arc(territory.x, territory.y, territory.radius, territory.start, territory.degree);
+        shapeRenderer.arc(territory.center.x, territory.center.y, territory.radius, territory.getStart(), territory.angle);
 
         shapeRenderer.end();
     }

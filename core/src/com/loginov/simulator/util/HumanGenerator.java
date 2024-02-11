@@ -1,8 +1,8 @@
 package com.loginov.simulator.util;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.loginov.simulator.Actor.Collector;
 import com.loginov.simulator.Actor.Human;
@@ -12,10 +12,12 @@ import com.loginov.simulator.Clan.Clan;
 import com.loginov.simulator.Clan.Sector;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HumanGenerator extends UnitGenerator {
     private ArrayList<Human> humans;
-
+    private Map<Clan, Integer> clanChildrenMap;
     private ArrayList<Human> children;
 
     public HumanGenerator(Group group) {
@@ -26,6 +28,7 @@ public class HumanGenerator extends UnitGenerator {
         this.amountArea = SimulationParams.getHumanAreas();
         humans = new ArrayList<>();
         children = new ArrayList<>();
+        clanChildrenMap = new HashMap<>();
         generateAreas(group);
     }
 
@@ -38,60 +41,96 @@ public class HumanGenerator extends UnitGenerator {
      * select a random area from the available ones and
      * position the person at the edge of this area
      */
-    private void defineArea(ResourceManager resourceManager, String human) {
-        int areaId = MathUtils.random(areas.size() - 1);
-        float randomAngle = MathUtils.random(-MathUtils.PI, MathUtils.PI);
-        float radius = areas.get(areaId).radius;
-        float x = areas.get(areaId).x - Human.getHumanWidth() / 2 + (radius - Human.getHumanHeight()) * MathUtils.cos(randomAngle);
-        float y = areas.get(areaId).y - Human.getHumanHeight() / 2 + (radius - Human.getHumanHeight()) * MathUtils.sin(randomAngle);
-
-        switch (human) {
-            case "collector":
-                humans.add(new Collector(resourceManager.humanTexture, x, y, SimulationParams.getMETABOLISM()));
-                break;
-            case "warrior":
-                humans.add(new Warrior(resourceManager.humanTexture, x, y, SimulationParams.getMETABOLISM()));
-                break;
-            case "thief":
-                humans.add(new Thief(resourceManager.humanTexture, x, y, SimulationParams.getMETABOLISM()));
-                break;
-        }
-    }
-
-    private void defineArea(Clan clan, ResourceManager resourceManager, String human) {
+    private void defineArea(Clan clan, Texture texture, String humanType) {
         Sector territory = clan.getTerritory();
-        float randomAngle = MathUtils.random(territory.start * MathUtils.degreesToRadians,
+        float randomAngle = MathUtils.random(territory.getStart() * MathUtils.degreesToRadians,
                 territory.getEnd() * MathUtils.degreesToRadians);
-        float x = territory.x - Human.getHumanWidth() / 2 + (territory.radius - Human.getHumanHeight()) * MathUtils.cos(randomAngle);
-        float y = territory.y - Human.getHumanHeight() / 2 + (territory.radius - Human.getHumanHeight()) * MathUtils.sin(randomAngle);
-
-        switch (human) {
+        float x = territory.center.x - Human.getHumanWidth() / 2 + (territory.radius - Human.getHumanHeight()) * MathUtils.cos(randomAngle);
+        float y = territory.center.y - Human.getHumanHeight() / 2 + (territory.radius - Human.getHumanHeight()) * MathUtils.sin(randomAngle);
+        Human human;
+        switch (humanType) {
             case "collector":
-                humans.add(new Collector(resourceManager.humanTexture, x, y, clan, SimulationParams.getMETABOLISM()));
+                human = new Collector(texture, x, y, clan, SimulationParams.getMETABOLISM());
                 break;
             case "warrior":
-                humans.add(new Warrior(resourceManager.humanTexture, x, y, clan, SimulationParams.getMETABOLISM()));
+                human = new Warrior(texture, x, y, clan, SimulationParams.getMETABOLISM());
                 break;
             case "thief":
-                humans.add(new Thief(resourceManager.humanTexture, x, y, clan, SimulationParams.getMETABOLISM()));
+                human = new Thief(texture, x, y, clan, SimulationParams.getMETABOLISM());
                 break;
+            default:
+                human = null;
+        }
+        if (human != null) {
+            humans.add(human);
+            human.joinClan();
+        } else {
+            System.err.println("It was not possible to create a human because he is null");
         }
     }
 
     public void generate(ClanFactory clanFactory, ResourceManager resourceManager) {
+        int clanCounter = 0;
         for (Clan clan : clanFactory.getClans()) {
             for (int i = 0; i < SimulationParams.getWarriorCount(); i++) {
-                defineArea(clan, resourceManager, "warrior");
+                defineArea(clan, resourceManager.getClanTexture(clan), "warrior");
             }
             for (int i = 0; i < SimulationParams.getCollectorCount(); i++) {
-                defineArea(clan, resourceManager, "collector");
+                defineArea(clan, resourceManager.getClanTexture(clan), "collector");
             }
             for (int i = 0; i < SimulationParams.getThiefCount(); i++) {
-                defineArea(clan, resourceManager, "thief");
+                defineArea(clan, resourceManager.getClanTexture(clan), "thief");
             }
+            float allClanMembers = SimulationParams.getCollectorCount() +
+                    SimulationParams.getThiefCount() +
+                    SimulationParams.getWarriorCount();
+            clan.definePeopleRatio(SimulationParams.getCollectorCount() / allClanMembers,
+                    SimulationParams.getThiefCount() / allClanMembers,
+                    SimulationParams.getWarriorCount() / allClanMembers);
+            clanCounter++;
         }
     }
 
+    public void prepareChild(ResourceManager resourceManager, Clan clan, Class<? extends Human> humanClass) {
+        Circle area = areas.get(0);
+        Human human = null;
+        Sector territory = clan.getTerritory();
+        float randomAngle = MathUtils.random(0, territory.getHalfAngle()) * MathUtils.randomSign();
+        float angle = territory.getMiddle() + randomAngle;
+        float x = area.x - Human.getHumanWidth() / 2 + (area.radius - Human.getHumanHeight()) * MathUtils.cosDeg(angle);
+        float y = area.y - Human.getHumanHeight() / 2 + (area.radius - Human.getHumanHeight()) * MathUtils.sinDeg(angle);
+
+        if (humanClass.equals(Collector.class)) {
+            human = new Collector(resourceManager.getClanTexture(clan), x, y, clan, SimulationParams.getMETABOLISM());
+        } else if (humanClass.equals(Thief.class)) {
+            human = new Thief(resourceManager.getClanTexture(clan), x, y, clan, SimulationParams.getMETABOLISM());
+        } else if (humanClass.equals(Warrior.class)) {
+            human = new Warrior(resourceManager.getClanTexture(clan), x, y, clan, SimulationParams.getMETABOLISM());
+        }
+        if (human != null) {
+            children.add(human);
+            human.joinClan();
+        } else {
+            System.err.println("It was not possible to create a child because he is null");
+        }
+    }
+
+    @Deprecated
+    public void addChildren() {
+        humans.addAll(children);
+        children.clear();
+    }
+
+    public void addChildren(ResourceManager resourceManager, Clan clan, Map<Class<? extends Human>, Integer> humanByTypeMap) {
+        for (Class<? extends Human> humanClass :
+                humanByTypeMap.keySet()) {
+            for (int i = 0; i < humanByTypeMap.get(humanClass); i++) {
+                prepareChild(resourceManager, clan, humanClass);
+            }
+        }
+        humans.addAll(children);
+        children.clear();
+    }
 
     public ArrayList<Human> getHumans() {
         return humans;
@@ -107,36 +146,6 @@ public class HumanGenerator extends UnitGenerator {
 
     public void add(Human human) {
         humans.add(human);
-    }
-
-    public void prepareChildren(Human human) {
-        Circle area = null;
-
-        for (Circle circle : areas) {
-            if (circle.contains(human.getPosition())) {
-                area = new Circle(circle);
-                break;
-            }
-        }
-
-        if (area == null) {
-            area = new Circle(areas.get(0));
-        }
-
-        float randomAngle = MathUtils.random(MathUtils.PI / 8, MathUtils.PI / 2) *
-                (MathUtils.randomBoolean(0.5f) ? 1 : -1);
-        float angle = MathUtils.acos(
-                (human.getHome().x - area.x + Human.getHumanWidth() / 2)
-                        / (area.radius - Human.getHumanHeight())) + randomAngle;
-        float x = area.x - Human.getHumanWidth() / 2 + (area.radius - Human.getHumanHeight()) * MathUtils.cos(angle);
-        float y = area.y - Human.getHumanHeight() / 2 + (area.radius - Human.getHumanHeight()) * MathUtils.sin(angle);
-        human.setHome(new Vector2(x, y));
-        children.add(human);
-    }
-
-    public void addChildren() {
-        humans.addAll(children);
-        children.clear();
     }
 
     public boolean children() {

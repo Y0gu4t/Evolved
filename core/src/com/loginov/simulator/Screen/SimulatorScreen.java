@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -15,16 +16,17 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.loginov.simulator.Actor.Collector;
+import com.loginov.simulator.Actor.Food;
 import com.loginov.simulator.Actor.Human;
 import com.loginov.simulator.Actor.Thief;
 import com.loginov.simulator.Actor.Warrior;
 import com.loginov.simulator.Clan.Clan;
-import com.loginov.simulator.Clan.Sector;
 import com.loginov.simulator.Enums.ApplicationState;
 import com.loginov.simulator.Enums.HumanState;
 import com.loginov.simulator.Enums.SimulationState;
@@ -85,7 +87,7 @@ public class SimulatorScreen extends BaseScreen {
         humanGenerator = new HumanGenerator(group);
         clanFactory = new ClanFactory();
         foodGenerator = new FoodGenerator(group);
-        clanFactory.createClans(humanGenerator);
+        clanFactory.createClans(humanGenerator, resourceManager);
         foodGenerator.generate(SimulationParams.getFoodCount(), resourceManager);
         humanGenerator.generate(clanFactory, resourceManager);
         // set input
@@ -95,8 +97,6 @@ public class SimulatorScreen extends BaseScreen {
 
     /**
      * update human's satiety
-     *
-     * @// FIXME: 27.04.2023 need to rework or replace
      */
     private void satietyUpdate(float deltaSatiety) {
 
@@ -113,6 +113,7 @@ public class SimulatorScreen extends BaseScreen {
 
         for (Human human : toDelete) {
             humanGenerator.remove(human);
+            human.getClan().remove(human);
         }
     }
 
@@ -129,11 +130,25 @@ public class SimulatorScreen extends BaseScreen {
         simulatorTime += delta * simulationSpeed;
         generateTime += delta * simulationSpeed;
         if (generateTime >= simulationState.getDuration()) {
-
+            // perform actions after the end of day/night
             switch (simulationState) {
                 case NIGHT:
+                    clanFactory.removeEmptyClans();
+                    for (Clan clan :
+                            clanFactory.getClans()) {
+                        clan.feedMembers();
+                        int childrenCount = 0;
+                        for (Human human :
+                                clan.getMembers()) {
+                            if (human.giveBirthOpportunity() && human.getState() == HumanState.AT_HOME) {
+                                human.setAgesAfterChildbirth(0);
+                                childrenCount++;
+                            }
+                        }
+                        humanGenerator.addChildren(resourceManager, clan, clan.classifyHumansByType(childrenCount));
+                    }
+                    clanFactory.updateClanTerritories(humanGenerator);
                     daysPast++;
-
                     for (Human h : humanGenerator.getHumans()) {
                         h.updateAge();
                         h.updateAgesAfterChildbirth();
@@ -143,6 +158,7 @@ public class SimulatorScreen extends BaseScreen {
 
                 case DAY:
                     for (Human h : humanGenerator.getHumans()) {
+                        h.findNearestHome();
                         h.setState(HumanState.GO_HOME);
                     }
                     break;
@@ -156,7 +172,6 @@ public class SimulatorScreen extends BaseScreen {
         for (Human h : humanGenerator.getHumans()) {
             h.operate(foodGenerator, humanGenerator, simulationState);
         }
-        humanGenerator.addChildren();
     }
 
     private void changeSimulationState() {
@@ -177,38 +192,32 @@ public class SimulatorScreen extends BaseScreen {
      * FIXME: 27.04.2023 add threads, maybe need to replace
      */
     public void draw(float delta) {
-        Gdx.gl.glClearColor(1f, 1f, 1f, 1);
+        Gdx.gl.glClearColor(250 / 255f, 235 / 255f, 215 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         proxy.getBatch().setProjectionMatrix(apiCam.combined);
         proxy.getShapeRenderer().setProjectionMatrix(apiCam.combined);
 
         // show simulation areas
-        //debugAreas(humanGenerator.getAreas());
+        // debugAreas(humanGenerator.getAreas());
         // debugAreas(foodGenerator.getAreas());
 
-        proxy.getShapeRenderer().setAutoShapeType(true);
-        proxy.getShapeRenderer().begin(ShapeRenderer.ShapeType.Filled);
-
-        for (Clan clan: clanFactory.getClans()) {
-            Sector territory = clan.getTerritory();
-            proxy.getShapeRenderer().setColor(territory.color);
-            proxy.getShapeRenderer().arc(territory.x, territory.y, territory.radius, territory.start, territory.degree);
+        for (Clan clan : clanFactory.getClans()) {
+            clan.draw(proxy.getShapeRenderer());
         }
 
-        proxy.getShapeRenderer().end();
-
         // show a human's path to the goal
-        for (int i = 0; i < humanGenerator.getHumans().size(); i++) {
-            humanGenerator.getHumans().get(i).debug(proxy.getShapeRenderer(), apiCam);
+        for (Human h : humanGenerator.getHumans()) {
+            h.debug(proxy.getShapeRenderer(), apiCam);
         }
 
         proxy.getBatch().begin();
 
-        for (int i = 0; i < humanGenerator.getHumans().size(); i++) {
-            humanGenerator.getHumans().get(i).draw(proxy.getBatch());
+        for (Food f : foodGenerator.getFood()) {
+            f.draw(proxy.getBatch());
         }
-        for (int i = 0; i < foodGenerator.getFood().size(); i++) {
-            foodGenerator.getFood().get(i).draw(proxy.getBatch());
+
+        for (Human h : humanGenerator.getHumans()) {
+            h.draw(proxy.getBatch());
         }
 
         proxy.getBatch().end();
@@ -257,7 +266,7 @@ public class SimulatorScreen extends BaseScreen {
      * set table's params
      */
     private void handleInfoTable() {
-        infoTable.setWidth(stage.getWidth() / 8);
+        infoTable.setWidth(stage.getWidth() / 6);
         infoTable.setHeight(stage.getHeight());
         infoTable.padLeft(10).padTop(10);
         infoTable.align(Align.topLeft);
@@ -267,7 +276,7 @@ public class SimulatorScreen extends BaseScreen {
      * create simulation's information field and add info updater
      */
     private void handleTextFieldSimulationInfo() {
-        final TextArea textArea = createTextArea("", infoTable.getWidth(), infoTable.getHeight() / 4, 0, 50, true, true, infoTable);
+        final TextArea textArea = createTextArea("", infoTable.getWidth(), infoTable.getHeight() / 1.8f, 0, 50, true, infoTable);
 
         Actor thisTextArea = infoTable.getCells().get(0).getActor();
         thisTextArea.addAction(new Action() {
@@ -280,9 +289,9 @@ public class SimulatorScreen extends BaseScreen {
                 int collectorsCount = 0;
                 int warriorsCount = 0;
                 int thievesCount = 0;
-                float collectorsPercentage;
-                float warriorsPercentage;
-                float thievesPercentage;
+                float collectorsPercentage = 0f;
+                float warriorsPercentage = 0f;
+                float thievesPercentage = 0f;
 
                 for (Human h : humanGenerator.getHumans()) {
                     avgSatiety += h.getSatiety();
@@ -299,24 +308,23 @@ public class SimulatorScreen extends BaseScreen {
                 avgSatiety /= humanGenerator.getHumans().size();
                 avgAge /= humanGenerator.getHumans().size();
                 avgMetabolism /= humanGenerator.getHumans().size();
-                collectorsPercentage = (float) collectorsCount * 100 / humanGenerator.getHumans().size();
-                warriorsPercentage = (float) warriorsCount * 100 / humanGenerator.getHumans().size();
-                thievesPercentage = (float) thievesCount * 100 / humanGenerator.getHumans().size();
+                if (humanGenerator.getHumans().size() != 0) {
+                    collectorsPercentage = (float) collectorsCount * 100 / humanGenerator.getHumans().size();
+                    warriorsPercentage = (float) warriorsCount * 100 / humanGenerator.getHumans().size();
+                    thievesPercentage = (float) thievesCount * 100 / humanGenerator.getHumans().size();
+                }
 
-                textArea.setText(String.format("Simulation time: %d", (int) simulatorTime) +
-                        String.format("\nTimes of day: %s", simulationState) +
-                        String.format("\nDays past: %d", daysPast) +
-                        String.format("\nHumans: %d", humanGenerator.getHumans().size()) +
-                        String.format("\nCollectors: %d", collectorsCount) +
-                        String.format("\nWarriors: %d", warriorsCount) +
-                        String.format("\nThief: %d", thievesCount) +
-                        String.format("\nCollectors %%: %.2f %%", collectorsPercentage) +
-                        String.format("\nWarriors %%: %.2f %%", warriorsPercentage) +
-                        String.format("\nThieves %%: %.2f %%", thievesPercentage) +
-                        String.format("\nFood: %d", foodGenerator.getFood().size()) +
-                        String.format("\nAverage satiety: %.2f", avgSatiety) +
-                        String.format("\nAverage age: %.2f", avgAge) +
-                        String.format("\nAverage meta: %.2f", avgMetabolism));
+                textArea.setText(String.format("Simulation time: %d\n", (int) simulatorTime) +
+                        String.format("\nTimes of day: %s\n", simulationState) +
+                        String.format("\nDays past: %d\n", daysPast) +
+                        String.format("\nHumans: %d\n", humanGenerator.getHumans().size()) +
+                        String.format("\nCollectors: %d (%d %%)\n", collectorsCount, MathUtils.floor(collectorsPercentage)) +
+                        String.format("\nWarriors: %d (%d %%)\n", warriorsCount, MathUtils.floor(warriorsPercentage)) +
+                        String.format("\nThief: %d (%d %%)\n", thievesCount, MathUtils.floor(thievesPercentage)) +
+                        String.format("\nFood: %d\n", foodGenerator.getFood().size()) +
+                        String.format("\nAverage satiety: %.2f\n", avgSatiety) +
+                        String.format("\nAverage age: %.2f\n", avgAge) +
+                        String.format("\nAverage meta: %.2f\n", avgMetabolism));
                 // false - update info on screen, true - not update
                 return false;
             }
