@@ -34,7 +34,7 @@ public class ResourceManager {
 
         assetManager.finishLoading();
         // get our resources
-        textureAtlas = assetManager.get("flat-earth/skin/flat-earth-ui.atlas", TextureAtlas.class);
+        textureAtlas = assetManager.get(TEXTURE_ATLAS_PATH, TextureAtlas.class);
         humanTextures.add((Texture) assetManager.get("human_1.png"));
         humanTextures.add((Texture) assetManager.get("human_2.png"));
         humanTextures.add((Texture) assetManager.get("human_3.png"));

@@ -53,7 +53,7 @@ public class Warrior extends Human implements Steal {
                 humanToSteal = null;
                 findNearestHome();
                 goHome();
-                if (SimulatorScreen.getGenerateTime() > SimulationState.NIGHT.getDuration() + 0.5f
+                if (SimulatorScreen.getGenerateTime() > SimulationState.NIGHT.getDuration() - 0.5f
                         && state.equals(SimulationState.NIGHT)) {
                     position = new Vector2(home);
                     this.state = HumanState.AT_HOME;

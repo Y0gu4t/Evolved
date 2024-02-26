@@ -72,21 +72,22 @@ public class HumanGenerator extends UnitGenerator {
     public void generate(ClanFactory clanFactory, ResourceManager resourceManager) {
         int clanCounter = 0;
         for (Clan clan : clanFactory.getClans()) {
-            for (int i = 0; i < SimulationParams.getWarriorCount(); i++) {
+            int warriorCount = SimulationParams.getClanList().get(clanCounter).getWarriorCount();
+            int collectorCount = SimulationParams.getClanList().get(clanCounter).getCollectorCount();
+            int thiefCount = SimulationParams.getClanList().get(clanCounter).getThiefCount();
+            for (int i = 0; i < warriorCount; i++) {
                 defineArea(clan, resourceManager.getClanTexture(clan), "warrior");
             }
-            for (int i = 0; i < SimulationParams.getCollectorCount(); i++) {
+            for (int i = 0; i < collectorCount; i++) {
                 defineArea(clan, resourceManager.getClanTexture(clan), "collector");
             }
-            for (int i = 0; i < SimulationParams.getThiefCount(); i++) {
+            for (int i = 0; i < thiefCount; i++) {
                 defineArea(clan, resourceManager.getClanTexture(clan), "thief");
             }
-            float allClanMembers = SimulationParams.getCollectorCount() +
-                    SimulationParams.getThiefCount() +
-                    SimulationParams.getWarriorCount();
-            clan.definePeopleRatio(SimulationParams.getCollectorCount() / allClanMembers,
-                    SimulationParams.getThiefCount() / allClanMembers,
-                    SimulationParams.getWarriorCount() / allClanMembers);
+            float allClanMembers = warriorCount + collectorCount + thiefCount;
+            clan.definePeopleRatio(collectorCount / allClanMembers,
+                    thiefCount / allClanMembers,
+                    warriorCount / allClanMembers);
             clanCounter++;
         }
     }

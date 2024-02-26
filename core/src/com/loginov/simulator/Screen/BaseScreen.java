@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
@@ -86,10 +87,11 @@ public class BaseScreen implements Screen {
         return table;
     }
 
-    public void createButton(String text, float width, float height, float x, float y, Table table){
+    public Actor createButton(String text, float width, float height, float x, float y, Table table){
         TextButton button = new TextButton(text, resourceManager.toolSkin, "default");
         table.add(button).width(width).height(height).padLeft(x).padTop(y);
         table.row();
+        return  button;
     }
 
     public TextArea createTextArea(String text, float width, float height, float x, float y, boolean newRow, Table table){
@@ -99,8 +101,17 @@ public class BaseScreen implements Screen {
         return textArea;
     }
 
+    public TextArea createTextArea(String text, float width, float height, float x, float y, boolean newRow, Table table, String styleName){
+        TextArea textArea = new TextArea(text, resourceManager.toolSkin, styleName);
+        table.add(textArea).width(width).height(height).padRight(x).padBottom(y);
+        if(newRow) table.row();
+        return textArea;
+    }
+
     public TextField createTextField(String text, float width, float height, float x, float y, boolean newRow, Table table){
         TextField textField = new TextField(text, resourceManager.toolSkin, "default");
+        textField.setDisabled(true);
+        textField.setAlignment(Align.center);
         table.add(textField).width(width).height(height).padRight(x).padBottom(y);
         if(newRow) table.row();
         return textField;

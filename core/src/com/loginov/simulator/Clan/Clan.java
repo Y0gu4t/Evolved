@@ -8,7 +8,9 @@ import com.loginov.simulator.Actor.Thief;
 import com.loginov.simulator.Actor.Warrior;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Clan {
@@ -73,19 +75,37 @@ public class Clan {
     }
 
     public void feedMembers() {
-        int foodForEach = foodStorage / members.size();
-        for (Human human : members) {
-            human.eat(foodForEach);
-        }
+        if (members.size() > 0) {
+            int foodForEach = foodStorage / members.size();
+            for (Human human : members) {
+                human.eat(foodForEach);
+            }
 
-        for (Human human :
-                members) {
-            if (foodStorage > 0) {
-                if (human.getSatiety() < 50f) {
-                    human.eat(1);
-                }
-            } else break;
+            for (Human human :
+                    members) {
+                if (foodStorage > 0) {
+                    if (human.getSatiety() < 50f) {
+                        human.eat(1);
+                    }
+                } else break;
+            }
         }
+    }
+
+    public List<Integer> getMembersTypeCount() {
+        int collectorCount = 0;
+        int thiefCount = 0;
+        int warriorCount = 0;
+        for (Human h : members) {
+            if (h.getClass().equals(Collector.class)) {
+                collectorCount++;
+            } else if (h.getClass().equals(Warrior.class)) {
+                warriorCount++;
+            } else if (h.getClass().equals(Thief.class)) {
+                thiefCount++;
+            }
+        }
+        return Arrays.asList(collectorCount, thiefCount, warriorCount);
     }
 
     public void definePeopleRatio(float collectorRatio, float thiefRatio, float warriorRatio) {
@@ -129,10 +149,8 @@ public class Clan {
     public void draw(ShapeRenderer shapeRenderer) {
         shapeRenderer.setAutoShapeType(true);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-
         shapeRenderer.setColor(territory.color);
         shapeRenderer.arc(territory.center.x, territory.center.y, territory.radius, territory.getStart(), territory.angle);
-
         shapeRenderer.end();
     }
 }

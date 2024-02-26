@@ -5,6 +5,7 @@ import com.loginov.simulator.Actor.Collector;
 import com.loginov.simulator.Actor.Human;
 import com.loginov.simulator.Actor.Thief;
 import com.loginov.simulator.Actor.Warrior;
+import com.loginov.simulator.Clan.Clan;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,15 +32,22 @@ public class SimulationParams {
     private static int deltaSatiety = -10;
     private static final float METABOLISM = (float) (Math.random() + 0.5f);
 
+    private static final List<ClanParams> clanList = Arrays.asList(
+            new ClanParams(5,3,2,
+                    new Color(0x80e8e2ff),
+                    new Color(0x20b2aaff),
+                    "clan-blue" ),
+            new ClanParams(5,3,2,
+                    new Color(0xf7bfbfff),
+                    new Color(0xf08080ff),
+                    "clan-coral" ));
+
     private static final Map<Class<? extends Human>, Color> humanColors =
             new HashMap<Class<? extends Human>, Color>() {{
                 put(Collector.class, new Color(0x5dbb63ff));
                 put(Thief.class, new Color(0xfcf4a3ff));
                 put(Warrior.class, new Color(0xb90e0aff));
             }};
-    private static final List<Color> clanColors = Arrays.asList(
-            new Color(0x80e8e2ff), // #20b2aa
-            new Color(0xf7bfbfff)); // #f08080
 
     public static int getFoodCount() {
         return foodCount;
@@ -97,38 +105,6 @@ public class SimulationParams {
         SimulationParams.clanCount = clanCount;
     }
 
-    public static int getHumanCount() {
-        return humanCount;
-    }
-
-    public static void setHumanCount(int humanCount) {
-        SimulationParams.humanCount = humanCount;
-    }
-
-    public static int getCollectorCount() {
-        return collectorCount;
-    }
-
-    public static void setCollectorCount(int collectorCount) {
-        SimulationParams.collectorCount = collectorCount;
-    }
-
-    public static int getWarriorCount() {
-        return warriorCount;
-    }
-
-    public static void setWarriorCount(int warriorCount) {
-        SimulationParams.warriorCount = warriorCount;
-    }
-
-    public static int getThiefCount() {
-        return thiefCount;
-    }
-
-    public static void setThiefCount(int thiefCount) {
-        SimulationParams.thiefCount = thiefCount;
-    }
-
     public static int getHumanAreas() {
         return humanAreas;
     }
@@ -173,8 +149,8 @@ public class SimulationParams {
         return METABOLISM;
     }
 
-    public static List<Color> getClanColors() {
-        return clanColors;
+    public static List<ClanParams> getClanList() {
+        return clanList;
     }
 
     public static Map<Class<? extends Human>, Color> getHumanColors() {

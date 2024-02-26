@@ -23,7 +23,7 @@ public class ClanFactory {
             Circle area = humanGenerator.getAreas().get(0);
             for (int i = 0; i < SimulationParams.getClanCount(); i++) {
                 float middle = i * 360f / SimulationParams.getClanCount();
-                Sector territory = new Sector(area.x, area.y, area.radius, middle, angle, SimulationParams.getClanColors().get(i));
+                Sector territory = new Sector(area.x, area.y, area.radius, middle, angle, SimulationParams.getClanList().get(i).getTerritoryColor());
                 Clan clan = new Clan(territory);
                 resourceManager.setTextureForClan(clan, resourceManager.humanTextures.get(i));
                 clans.add(clan);
@@ -47,14 +47,11 @@ public class ClanFactory {
     }
 
     public void removeEmptyClans() {
-        ArrayList<Clan> clansToRemove = new ArrayList<>();
-        for (Clan clan:
-             clans) {
+        for (Clan clan : clans) {
             if (clan.getMembers().size() == 0) {
-                clansToRemove.add(clan);
+                clan = null;
             }
         }
-        clans.removeAll(clansToRemove);
     }
 
     public ArrayList<Clan> getClans() {

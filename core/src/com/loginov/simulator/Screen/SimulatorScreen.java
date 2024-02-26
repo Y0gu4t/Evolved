@@ -2,6 +2,7 @@ package com.loginov.simulator.Screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -28,68 +28,97 @@ import com.loginov.simulator.Actor.Thief;
 import com.loginov.simulator.Actor.Warrior;
 import com.loginov.simulator.Clan.Clan;
 import com.loginov.simulator.Enums.ApplicationState;
+import com.loginov.simulator.Enums.ClanInfoState;
+import com.loginov.simulator.Enums.DiagramInfoState;
 import com.loginov.simulator.Enums.HumanState;
 import com.loginov.simulator.Enums.SimulationState;
 import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.ClanFactory;
+import com.loginov.simulator.util.DiagramDrawer;
 import com.loginov.simulator.util.FoodGenerator;
 import com.loginov.simulator.util.HumanGenerator;
 import com.loginov.simulator.util.ResourceManager;
 import com.loginov.simulator.util.SimulationParams;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.FileHandler;
 
 public class SimulatorScreen extends BaseScreen {
-    private BaseScreen previousScreen;
-    private InputMultiplexer multiplexer;
+    private final DiagramDrawer diagramDrawer;
     private ApplicationState applicationState;
+    private ClanInfoState clanInfoState;
+    private DiagramInfoState diagramInfoState;
     private SimulationState simulationState;
-    private Viewport apiPort;
-    private Table infoTable;
-    private Group group;
-    private FoodGenerator foodGenerator;
-    private HumanGenerator humanGenerator;
-    private ClanFactory clanFactory;
+    private final Viewport apiPort;
+    private final Table infoTable;
+    private final Table clanTable;
+    private final Group simulationGroup;
+    private final Group diagramGroup;
+    private final FoodGenerator foodGenerator;
+    private final HumanGenerator humanGenerator;
+    private final ClanFactory clanFactory;
     private float simulatorTime = 0f;
     private int daysPast = 0;
     public static float generateTime = 0f;
-    public static float simulationSpeed = 0.0f;
+    public static float simulationSpeed = 1.0f;
+    private FileHandle logFile;
 
     public SimulatorScreen(Evolved proxy, BaseScreen previousScreen, ResourceManager resourceManager) {
         super(proxy, resourceManager);
-        this.previousScreen = previousScreen;
+        generateTime = 0.0f;
+        simulationSpeed = 1.0f;
         // set running state
         setApplicationState(ApplicationState.RUNNING);
+        clanInfoState = ClanInfoState.HIDE;
+        diagramInfoState = DiagramInfoState.HIDE;
         simulationState = SimulationState.DAY;
         // set camera
         apiCam = new OrthographicCamera();
         apiCam.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         apiPort = new ScreenViewport(apiCam);
         // set input and stage
-        multiplexer = new InputMultiplexer();
+        InputMultiplexer multiplexer = new InputMultiplexer();
         stage = new Stage(apiPort);
+        // set diagram drawer
+        diagramDrawer = new DiagramDrawer();
         infoTable = new Table();
-        group = new Group();
-
-        // put infoTable on the screen
+        clanTable = new Table();
+        simulationGroup = new Group();
+        diagramGroup = new Group();
+        // set infoTable params
         handleInfoTable();
+        // set simulation group params
+        handleSimulationGroup();
+        // set diagram group params
+        handleDiagramGroup();
+        // set clanTable params
+        handleClanTable();
         // create buttons
         handleTextFieldSimulationInfo();
         handlePauseButton();
+        handleClanInfoButton();
+        handleDiagramInfoButton();
         handleBackButton();
         handleSpeedSlider();
-        // set group params
-        handleGroup();
+        handleTextFieldClanInfo();
         // add actors in stage
         stage.addActor(infoTable);
-        stage.addActor(group);
+        stage.addActor(clanTable);
+        stage.addActor(simulationGroup);
+        stage.addActor(diagramGroup);
         // generate simulation objects
-        humanGenerator = new HumanGenerator(group);
+        humanGenerator = new HumanGenerator(simulationGroup);
         clanFactory = new ClanFactory();
-        foodGenerator = new FoodGenerator(group);
+        foodGenerator = new FoodGenerator(simulationGroup);
         clanFactory.createClans(humanGenerator, resourceManager);
         foodGenerator.generate(SimulationParams.getFoodCount(), resourceManager);
         humanGenerator.generate(clanFactory, resourceManager);
+        // set logger
+        createLogFile();
+        System.out.println(Gdx.files.getLocalStoragePath());
         // set input
         multiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(multiplexer);
@@ -129,25 +158,34 @@ public class SimulatorScreen extends BaseScreen {
     public void updateRunning(float delta) {
         simulatorTime += delta * simulationSpeed;
         generateTime += delta * simulationSpeed;
+        if (simulatorTime % 1.0f >= 1.0f - delta * simulationSpeed) {
+            writeLog();
+        }
         if (generateTime >= simulationState.getDuration()) {
             // perform actions after the end of day/night
             switch (simulationState) {
                 case NIGHT:
                     clanFactory.removeEmptyClans();
-                    for (Clan clan :
-                            clanFactory.getClans()) {
-                        clan.feedMembers();
-                        int childrenCount = 0;
-                        for (Human human :
-                                clan.getMembers()) {
-                            if (human.giveBirthOpportunity() && human.getState() == HumanState.AT_HOME) {
-                                human.setAgesAfterChildbirth(0);
-                                childrenCount++;
+                    List<Integer> membersList = new ArrayList<>();
+                    for (Clan clan : clanFactory.getClans()) {
+                        if (clan != null){
+                            clan.feedMembers();
+                            int childrenCount = 0;
+                            for (Human human :
+                                    clan.getMembers()) {
+                                if (human.giveBirthOpportunity() && human.getState() == HumanState.AT_HOME) {
+                                    human.setAgesAfterChildbirth(0);
+                                    childrenCount++;
+                                }
                             }
+                            humanGenerator.addChildren(resourceManager, clan, clan.classifyHumansByType(childrenCount));
+                            membersList.add(clan.getMembers().size());
+                        } else {
+                            membersList.add(0);
                         }
-                        humanGenerator.addChildren(resourceManager, clan, clan.classifyHumansByType(childrenCount));
                     }
                     clanFactory.updateClanTerritories(humanGenerator);
+                    diagramDrawer.addPoint(daysPast, membersList);
                     daysPast++;
                     for (Human h : humanGenerator.getHumans()) {
                         h.updateAge();
@@ -202,7 +240,9 @@ public class SimulatorScreen extends BaseScreen {
         // debugAreas(foodGenerator.getAreas());
 
         for (Clan clan : clanFactory.getClans()) {
-            clan.draw(proxy.getShapeRenderer());
+            if (clan != null) {
+                clan.draw(proxy.getShapeRenderer());
+            }
         }
 
         // show a human's path to the goal
@@ -220,10 +260,19 @@ public class SimulatorScreen extends BaseScreen {
             h.draw(proxy.getBatch());
         }
 
+        stage.getActors().get(0).draw(proxy.getBatch(), 1);
+        if (clanInfoState == ClanInfoState.SHOW) {
+            stage.getActors().get(1).draw(proxy.getBatch(), 1);
+        }
+
         proxy.getBatch().end();
 
+        if (diagramInfoState == DiagramInfoState.SHOW) {
+            diagramDrawer.drawDiagram(proxy.getShapeRenderer(), proxy.getBatch(), resourceManager, diagramGroup);
+        }
+
         stage.act(delta);
-        stage.draw();
+        //stage.draw();
     }
 
     /**
@@ -262,14 +311,46 @@ public class SimulatorScreen extends BaseScreen {
         }
     }
 
+    public void changeClanInfoState() {
+        switch (clanInfoState) {
+            case HIDE:
+                clanInfoState = ClanInfoState.SHOW;
+                diagramInfoState = DiagramInfoState.HIDE;
+                break;
+            case SHOW:
+                clanInfoState = ClanInfoState.HIDE;
+                break;
+        }
+    }
+
+    public void changeDiagramInfoState() {
+        switch (diagramInfoState) {
+            case HIDE:
+                diagramInfoState = DiagramInfoState.SHOW;
+                clanInfoState = ClanInfoState.HIDE;
+                break;
+            case SHOW:
+                diagramInfoState = DiagramInfoState.HIDE;
+                break;
+        }
+    }
+
     /**
      * set table's params
      */
     private void handleInfoTable() {
-        infoTable.setWidth(stage.getWidth() / 6);
-        infoTable.setHeight(stage.getHeight());
-        infoTable.padLeft(10).padTop(10);
+        infoTable.setX(stage.getWidth() / 95);
+        infoTable.setY(stage.getHeight() / 100);
+        infoTable.setWidth(stage.getWidth() / 7);
+        infoTable.setHeight(stage.getHeight() - 2 * stage.getHeight() / 100);
         infoTable.align(Align.topLeft);
+    }
+
+    private void handleClanTable() {
+        clanTable.setX(simulationGroup.getX() + simulationGroup.getWidth() + stage.getWidth() / 190);
+        clanTable.setY(stage.getHeight() / 100);
+        clanTable.setWidth(stage.getWidth() - clanTable.getX() - stage.getWidth() / 95);
+        clanTable.setHeight(stage.getHeight() - 2 * stage.getHeight() / 100);
     }
 
     /**
@@ -314,29 +395,64 @@ public class SimulatorScreen extends BaseScreen {
                     thievesPercentage = (float) thievesCount * 100 / humanGenerator.getHumans().size();
                 }
 
-                textArea.setText(String.format("Simulation time: %d\n", (int) simulatorTime) +
-                        String.format("\nTimes of day: %s\n", simulationState) +
-                        String.format("\nDays past: %d\n", daysPast) +
-                        String.format("\nHumans: %d\n", humanGenerator.getHumans().size()) +
-                        String.format("\nCollectors: %d (%d %%)\n", collectorsCount, MathUtils.floor(collectorsPercentage)) +
-                        String.format("\nWarriors: %d (%d %%)\n", warriorsCount, MathUtils.floor(warriorsPercentage)) +
-                        String.format("\nThief: %d (%d %%)\n", thievesCount, MathUtils.floor(thievesPercentage)) +
-                        String.format("\nFood: %d\n", foodGenerator.getFood().size()) +
-                        String.format("\nAverage satiety: %.2f\n", avgSatiety) +
-                        String.format("\nAverage age: %.2f\n", avgAge) +
-                        String.format("\nAverage meta: %.2f\n", avgMetabolism));
+                textArea.setText(String.format("\n Simulation time: %d\n", (int) simulatorTime) +
+                        String.format("\n Times of day: %s\n", simulationState) +
+                        String.format("\n Days past: %d\n", daysPast) +
+                        String.format("\n Humans: %d\n", humanGenerator.getHumans().size()) +
+                        String.format("\n Collectors: %d (%d %%)\n", collectorsCount, MathUtils.floor(collectorsPercentage)) +
+                        String.format("\n Warriors: %d (%d %%)\n", warriorsCount, MathUtils.floor(warriorsPercentage)) +
+                        String.format("\n Thief: %d (%d %%)\n", thievesCount, MathUtils.floor(thievesPercentage)) +
+                        String.format("\n Food: %d\n", foodGenerator.getFood().size()) +
+                        String.format("\n Average satiety: %.2f\n", avgSatiety) +
+                        String.format("\n Average age: %.2f\n", avgAge) +
+                        String.format("\n Average meta: %.2f\n", avgMetabolism));
                 // false - update info on screen, true - not update
                 return false;
             }
         });
     }
 
+    private void handleTextFieldClanInfo() {
+        for (int i = 0; i < SimulationParams.getClanCount(); i++) {
+            boolean newRow = i % 2 == 1;
+            final TextArea textArea = createTextArea("", clanTable.getWidth() / 2 - clanTable.getWidth() / 40,
+                    clanTable.getHeight() / 2 - clanTable.getHeight()/20, clanTable.getWidth() / 60, clanTable.getHeight() / 40,
+                    newRow, clanTable, SimulationParams.getClanList().get(i).getTextAreaStyle());
+            Actor thisTextArea = infoTable.getCells().get(i).getActor();
+            final int finalI = i;
+            thisTextArea.addAction(new Action() {
+                @SuppressWarnings("DefaultLocale")
+                @Override
+                public boolean act(float delta) {
+                    if (clanFactory.getClans().get(finalI) != null) {
+                        int clanFood = clanFactory.getClans().get(finalI).getFoodStorage();
+                        int allMembers = clanFactory.getClans().get(finalI).getMembers().size();
+                        List<Integer> membersTypeCount = clanFactory.getClans().get(finalI).getMembersTypeCount();
+
+                        textArea.setText(String.format("\n Members: %d\n", allMembers) +
+                                String.format("\n Collectors: %d\n", membersTypeCount.get(0)) +
+                                String.format("\n Thieves: %d\n", membersTypeCount.get(1)) +
+                                String.format("\n Warriors: %d\n", membersTypeCount.get(2)) +
+                                String.format("\n Food: %d\n", clanFood));
+                    } else {
+                        textArea.setText(String.format("\n Members: %d\n", 0) +
+                                String.format("\n Collectors: %d\n", 0) +
+                                String.format("\n Thieves: %d\n", 0) +
+                                String.format("\n Warriors: %d\n", 0) +
+                                String.format("\n Food: %d\n", 0));
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
     /**
      * create back to menu button and set new screen listener
      */
     private void handleBackButton() {
-        createButton("Back", infoTable.getWidth(), 50, 0, 50, infoTable);
-        Actor thisButton = infoTable.getCells().get(2).getActor();
+        createButton("Back", infoTable.getWidth(), 50, 0, 25, infoTable);
+        Actor thisButton = infoTable.getCells().get(4).getActor();
         thisButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -349,7 +465,7 @@ public class SimulatorScreen extends BaseScreen {
      * create pause button and simulation pause listener
      */
     private void handlePauseButton() {
-        createButton("Pause", infoTable.getWidth(), 50, 0, 50, infoTable);
+        createButton("Pause", infoTable.getWidth(), 50, 0, 25, infoTable);
         Actor thisButton = infoTable.getCells().get(1).getActor();
         thisButton.addListener(new ClickListener() {
             @Override
@@ -359,10 +475,32 @@ public class SimulatorScreen extends BaseScreen {
         });
     }
 
+    private void handleClanInfoButton() {
+        createButton("Clan info", infoTable.getWidth(), 50, 0, 25, infoTable);
+        Actor thisButton = infoTable.getCells().get(2).getActor();
+        thisButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                changeClanInfoState();
+            }
+        });
+    }
+
+    private void handleDiagramInfoButton() {
+        createButton("Graph", infoTable.getWidth(), 50, 0, 25, infoTable);
+        Actor thisButton = infoTable.getCells().get(3).getActor();
+        thisButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                changeDiagramInfoState();
+            }
+        });
+    }
+
     private void handleSpeedSlider() {
-        final Slider speedSlider = createSlider(infoTable.getWidth(), 10, 0, 50, 0.0f, 5.0f, 0.5f, false, infoTable);
+        final Slider speedSlider = createSlider(infoTable.getWidth(), 10, 0, 25, 0.0f, 5.0f, 0.5f, false, infoTable);
         speedSlider.setValue(simulationSpeed);
-        Actor thisSlider = infoTable.getCells().get(3).getActor();
+        Actor thisSlider = infoTable.getCells().get(5).getActor();
         thisSlider.addAction(new Action() {
             @Override
             public boolean act(float delta) {
@@ -372,9 +510,17 @@ public class SimulatorScreen extends BaseScreen {
         });
     }
 
-    private void handleGroup() {
-        group.setBounds(infoTable.getWidth() + 20, 20, stage.getWidth() - infoTable.getWidth() - 30, stage.getHeight() - 30);
-        group.setDebug(false);
+    private void handleSimulationGroup() {
+        simulationGroup.setBounds(infoTable.getX() + infoTable.getWidth() + stage.getWidth() / 190, stage.getHeight() / 100,
+                stage.getWidth() - infoTable.getWidth() * 3.5f + 6 * stage.getWidth() / 190, stage.getHeight() - stage.getHeight() / 50);
+    }
+
+    private void handleDiagramGroup() {
+        float x = simulationGroup.getX() + simulationGroup.getWidth() + stage.getWidth() / 190;
+        float y = stage.getHeight() / 100;
+        float width = stage.getWidth() - x - stage.getWidth() / 190;
+        float height = stage.getHeight() - stage.getHeight() / 50;
+        diagramGroup.setBounds(x, y,width, height);
     }
 
     public static float getGenerateTime() {
@@ -392,6 +538,37 @@ public class SimulatorScreen extends BaseScreen {
         proxy.getShapeRenderer().end();
     }
 
+    @SuppressWarnings("DefaultLocale")
+    private void writeLog(){
+        int i = 1;
+        for (Clan clan:
+             clanFactory.getClans()) {
+            List<Integer> membersTypeCount = clan.getMembersTypeCount();
+            logFile.writeString(String.format("\n%d,%d,%d,%d,%d,%d,%d",
+                    i,
+                    MathUtils.floor(simulatorTime),
+                    clan.getMembers().size(),
+                    membersTypeCount.get(0),
+                    membersTypeCount.get(1),
+                    membersTypeCount.get(2),
+                    clan.getFoodStorage()), true);
+            i++;
+        }
+    }
+
+    @SuppressWarnings("DefaultLocale")
+    private void createLogFile() {
+        String fileName = String.format("logs/log:c1-%d-%d-%d:c2-%d-%d-%d(%s).log",
+                SimulationParams.getClanList().get(0).getCollectorCount(),
+                SimulationParams.getClanList().get(0).getThiefCount(),
+                SimulationParams.getClanList().get(0).getWarriorCount(),
+                SimulationParams.getClanList().get(1).getCollectorCount(),
+                SimulationParams.getClanList().get(1).getThiefCount(),
+                SimulationParams.getClanList().get(1).getWarriorCount(),
+                LocalDate.now());
+        logFile = Gdx.files.local(fileName);
+        logFile.writeString("Clan,Time,Members,Collectors,Thieves,Warriors,Food",false);
+    }
 
     @Override
     public void show() {

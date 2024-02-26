@@ -9,7 +9,7 @@ import com.loginov.simulator.Evolved;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		final Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setWindowedMode(1920,1080);
+		config.setWindowedMode(1920,1000);
 		config.setWindowPosition(10, 10);
 		config.setForegroundFPS(60);
 		config.setResizable(false);
