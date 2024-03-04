@@ -40,16 +40,18 @@ public class ClanFactory {
     public void updateClanTerritories(HumanGenerator humanGenerator) {
         float humansCount = humanGenerator.getHumans().size();
         for (Clan clan : clans) {
-            float angle = 360f * (clan.getMembers().size() / humansCount) - 10;
-            angle = Math.max(Math.min(angle, maxAngle), minAngle);
-            clan.getTerritory().setAngle(angle);
+            if (clan.getTerritory().getAngle() > 0f) {
+                float angle = 360f * (clan.getMembers().size() / humansCount) - 10;
+                angle = Math.max(Math.min(angle, maxAngle), minAngle);
+                clan.getTerritory().setAngle(angle);
+            }
         }
     }
 
     public void removeEmptyClans() {
-        for (Clan clan : clans) {
-            if (clan.getMembers().size() == 0) {
-                clan = null;
+        for (int i = 0; i < clans.size(); i++) {
+            if (clans.get(i).getMembers().isEmpty()) {
+                clans.get(i).getTerritory().setAngle(0f);
             }
         }
     }

@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class SimulationParams {
 
-    private static int foodCount = 60;
-    private static int foodAdd = 20;
+    private static int foodCount = 100;
+    private static int foodAdd = 40;
     private static int foodAreas = 1;
     private static int minFoodAreaSize = 50;
     private static int maxFoodAreaSize = 200;
@@ -29,7 +29,7 @@ public class SimulationParams {
     private static int minHumanAreaSize = 50;
     private static int maxHumanAreaSize = 200;
     private static int minHumanAreaDistance = 500;
-    private static int deltaSatiety = -10;
+    private static int deltaSatiety = -5;
     private static final float METABOLISM = (float) (Math.random() + 0.5f);
 
     private static final List<ClanParams> clanList = Arrays.asList(

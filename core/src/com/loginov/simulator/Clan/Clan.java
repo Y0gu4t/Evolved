@@ -124,14 +124,17 @@ public class Clan {
         int warriorMembers = (int) (humansRatioMap.get(Warrior.class) * totalMembers);
 
         int remainingMembers = totalMembers - (collectorMembers + thiefMembers + warriorMembers);
+        float randomChance = MathUtils.random();
+        float collectorChance = humansRatioMap.get(Collector.class);
+        float thiefChance = humansRatioMap.get(Thief.class);
 
         for (int i = 0; i < remainingMembers; i++) {
-            if (MathUtils.randomBoolean(0.35f)) {
-                warriorMembers++;
-            } else if (MathUtils.randomBoolean(0.5f)) {
+            if (randomChance < collectorChance) {
+                collectorMembers++;
+            } else if (randomChance < collectorChance + thiefChance) {
                 thiefMembers++;
             } else {
-                collectorMembers++;
+                warriorMembers++;
             }
         }
 

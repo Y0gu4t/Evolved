@@ -246,9 +246,9 @@ public class SimulatorScreen extends BaseScreen {
         }
 
         // show a human's path to the goal
-        for (Human h : humanGenerator.getHumans()) {
+        /*for (Human h : humanGenerator.getHumans()) {
             h.debug(proxy.getShapeRenderer(), apiCam);
-        }
+        }*/
 
         proxy.getBatch().begin();
 

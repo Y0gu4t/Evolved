@@ -98,11 +98,10 @@ public abstract class Human extends DynamicWorldObject {
     public void findNearestHome() {
         float x = position.x - clan.getTerritory().center.x;
         float y = position.y - clan.getTerritory().center.y;
-        float angleToPoint = MathUtils.atan2(y, x);
-        if (angleToPoint < 0) {
-            angleToPoint += MathUtils.PI2;
+        float angleToPoint = MathUtils.atan2(y, x) * MathUtils.radDeg;
+        if (angleToPoint < 0 && clan.getTerritory().getStart() > 0) {
+            angleToPoint += 360f;
         }
-        angleToPoint *= MathUtils.radDeg;
         float angle = MathUtils.clamp(angleToPoint,clan.getTerritory().getStart() + 5f, clan.getTerritory().getEnd() - 5f) % 360f;
         float xHome = clan.getTerritory().center.x + (clan.getTerritory().radius - Human.getHumanWidth() / 2) * MathUtils.cosDeg(angle);
         float yHome = clan.getTerritory().center.y + (clan.getTerritory().radius - Human.getHumanHeight() / 2) * MathUtils.sinDeg(angle);

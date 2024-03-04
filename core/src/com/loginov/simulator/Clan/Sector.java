@@ -36,9 +36,9 @@ public final class Sector implements Shape2D {
 
     public float getStart() {
         float start = middle - getHalfAngle();
-        if (start < 0f) {
+        /*if (start < 0f) {
             start += 360f;
-        }
+        }*/
         return start;
     }
 
