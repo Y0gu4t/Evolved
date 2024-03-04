@@ -84,7 +84,7 @@ public class Clan {
             for (Human human :
                     members) {
                 if (foodStorage > 0) {
-                    if (human.getSatiety() < 50f) {
+                    if (human.getSatiety() < 30f) {
                         human.eat(1);
                     }
                 } else break;

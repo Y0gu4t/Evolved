@@ -86,9 +86,9 @@ public abstract class Human extends DynamicWorldObject {
     /**
      * update the human's position considering satiety, metabolism,
      * and simulation's speed values
+     * y = -ax^2 + bx
      */
     public void update() {
-        // y = -ax^2 + bx
         float param = SimulatorScreen.simulationSpeed * METABOLISM * 4;
         float speed = (float) (-Math.pow((1 - satiety / MAX_SATIETY), 2) + (1 - satiety / MAX_SATIETY));
         speed = state == HumanState.GO_HOME ? speed + 0.1f : speed;
@@ -99,12 +99,14 @@ public abstract class Human extends DynamicWorldObject {
         float x = position.x - clan.getTerritory().center.x;
         float y = position.y - clan.getTerritory().center.y;
         float angleToPoint = MathUtils.atan2(y, x) * MathUtils.radDeg;
-        if (angleToPoint < 0 && clan.getTerritory().getStart() > 0) {
-            angleToPoint += 360f;
-        }
-        float angle = MathUtils.clamp(angleToPoint,clan.getTerritory().getStart() + 5f, clan.getTerritory().getEnd() - 5f) % 360f;
-        float xHome = clan.getTerritory().center.x + (clan.getTerritory().radius - Human.getHumanWidth() / 2) * MathUtils.cosDeg(angle);
-        float yHome = clan.getTerritory().center.y + (clan.getTerritory().radius - Human.getHumanHeight() / 2) * MathUtils.sinDeg(angle);
+        if (angleToPoint < 0 && clan.getTerritory().getStart() > 0) { angleToPoint += 360f; }
+        float angle = MathUtils.clamp(angleToPoint,
+                clan.getTerritory().getStart() + 5f,
+                clan.getTerritory().getEnd() - 5f) % 360f;
+        float xHome = clan.getTerritory().center.x +
+                (clan.getTerritory().radius - Human.getHumanWidth() / 2) * MathUtils.cosDeg(angle);
+        float yHome = clan.getTerritory().center.y +
+                (clan.getTerritory().radius - Human.getHumanHeight() / 2) * MathUtils.sinDeg(angle);
         home = new Vector2(xHome, yHome);
     }
 

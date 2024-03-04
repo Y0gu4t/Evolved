@@ -57,7 +57,7 @@ public class Warrior extends Human implements Steal {
                         && state.equals(SimulationState.NIGHT)) {
                     position = new Vector2(home);
                     this.state = HumanState.AT_HOME;
-                    setSatiety(-20f);
+                    setSatiety(SimulationParams.getDeltaSatiety());
                 }
                 break;
         }
