@@ -48,7 +48,7 @@ public class Thief extends Human implements Collect, Steal {
                     break;
                 }
 
-                find(foodGenerator, humanGenerator);
+                defineGoal(foodGenerator, humanGenerator);
 
                 if (goal.getClass().equals(Food.class)) {
                     collect(foodGenerator);
@@ -73,7 +73,7 @@ public class Thief extends Human implements Collect, Steal {
         update();
     }
 
-    private void find(FoodGenerator foodGenerator, HumanGenerator humanGenerator) {
+    private void defineGoal(FoodGenerator foodGenerator, HumanGenerator humanGenerator) {
         findActor(humanGenerator.getHumans());
         findFood(foodGenerator.getFood());
         float dist = (float) Math.sqrt(Math.pow(getCenterPosition().x - goal.getCenterPosition().x, 2) +
