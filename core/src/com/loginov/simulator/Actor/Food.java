@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Food extends WorldObject {
     private static float satiety = 20f;
-    private static final float FOOD_WIDTH = 10f;
-    private static final float FOOD_HEIGHT = 10f;
+    private static final float FOOD_WIDTH = 15f;
+    private static final float FOOD_HEIGHT = 15f;
 
     public Food(Texture texture, float x, float y) {
         super(texture, x, y, FOOD_WIDTH, FOOD_HEIGHT);
