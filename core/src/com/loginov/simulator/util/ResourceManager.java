@@ -21,13 +21,13 @@ public class ResourceManager {
         assetManager.load("flat-earth/skin/flat-earth-ui.atlas", TextureAtlas.class);
         // Images
         assetManager.load("human.png", Texture.class);
-        assetManager.load("food.png", Texture.class);
+        assetManager.load("bread.png", Texture.class);
 
         assetManager.finishLoading();
         // get our resources
         textureAtlas = assetManager.get("flat-earth/skin/flat-earth-ui.atlas", TextureAtlas.class);
         humanTexture = assetManager.get("human.png");
-        foodTexture = assetManager.get("food.png");
+        foodTexture = assetManager.get("bread.png");
 
         // Skin
         toolSkin = new Skin();

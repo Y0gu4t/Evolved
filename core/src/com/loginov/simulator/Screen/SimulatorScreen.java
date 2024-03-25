@@ -184,7 +184,7 @@ public class SimulatorScreen extends BaseScreen {
 
         // show a human's path to the goal
         for (int i = 0; i < humanGenerator.getHumans().size(); i++) {
-            humanGenerator.getHumans().get(i).debug(proxy.getShapeRenderer(), apiCam);
+            //humanGenerator.getHumans().get(i).debug(proxy.getShapeRenderer(), apiCam);
         }
 
         proxy.getBatch().begin();
@@ -362,7 +362,7 @@ public class SimulatorScreen extends BaseScreen {
         proxy.getShapeRenderer().setProjectionMatrix(apiCam.combined);
         proxy.getShapeRenderer().begin(ShapeRenderer.ShapeType.Filled);
 
-        proxy.getShapeRenderer().setColor(Color.CYAN);
+        proxy.getShapeRenderer().setColor(Color.LIGHT_GRAY);
         for (Circle area : areas) {
             proxy.getShapeRenderer().circle(area.x, area.y, area.radius);
         }
