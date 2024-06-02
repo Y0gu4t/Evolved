@@ -4,21 +4,20 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.loginov.simulator.Actor.Collector;
-import com.loginov.simulator.Actor.Human;
-import com.loginov.simulator.Actor.Thief;
-import com.loginov.simulator.Actor.Warrior;
-import com.loginov.simulator.Clan.Clan;
-import com.loginov.simulator.Clan.Sector;
+import com.loginov.simulator.actor.Collector;
+import com.loginov.simulator.actor.Human;
+import com.loginov.simulator.actor.Thief;
+import com.loginov.simulator.actor.Warrior;
+import com.loginov.simulator.clan.Clan;
+import com.loginov.simulator.clan.Sector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HumanGenerator extends UnitGenerator {
-    private ArrayList<Human> humans;
-    private Map<Clan, Integer> clanChildrenMap;
-    private ArrayList<Human> children;
+    private final ArrayList<Human> humans;
+    private final ArrayList<Human> children;
 
     public HumanGenerator(Group group) {
         super(group);
@@ -28,7 +27,6 @@ public class HumanGenerator extends UnitGenerator {
         this.amountArea = SimulationParams.getHumanAreas();
         humans = new ArrayList<>();
         children = new ArrayList<>();
-        clanChildrenMap = new HashMap<>();
         generateAreas(group);
     }
 
@@ -38,7 +36,7 @@ public class HumanGenerator extends UnitGenerator {
     }
 
     /**
-     * select a random area from the available ones and
+     * Select a random area from the available ones and
      * position the person at the edge of this area
      */
     private void defineArea(Clan clan, Texture texture, String humanType) {

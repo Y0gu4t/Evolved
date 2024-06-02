@@ -1,22 +1,18 @@
-package com.loginov.simulator.Clan;
+package com.loginov.simulator.clan;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.loginov.simulator.Actor.Collector;
-import com.loginov.simulator.Actor.Human;
-import com.loginov.simulator.Actor.Thief;
-import com.loginov.simulator.Actor.Warrior;
+import com.loginov.simulator.actor.Collector;
+import com.loginov.simulator.actor.Human;
+import com.loginov.simulator.actor.Thief;
+import com.loginov.simulator.actor.Warrior;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Clan {
-    private ArrayList<Human> members;
+    private final ArrayList<Human> members;
     private int foodStorage;
-    private Sector territory;
+    private final Sector territory;
     private Clan rightEnemy;
     private Clan leftEnemy;
     private Map<Class<? extends Human>, Float> humansRatioMap;

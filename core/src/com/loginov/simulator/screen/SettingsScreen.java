@@ -1,4 +1,4 @@
-package com.loginov.simulator.Screen;
+package com.loginov.simulator.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -11,22 +11,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.loginov.simulator.Evolved;
-import com.loginov.simulator.util.ClanParams;
 import com.loginov.simulator.util.ResourceManager;
 import com.loginov.simulator.util.SimulationParams;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SettingsScreen extends BaseScreen {
     private BaseScreen previousScreen;
-    private ScreenViewport apiPort;
-    private Stage stage;
+    private final ScreenViewport apiPort;
+    private final Stage stage;
     private final Table settingsTable;
-    private InputMultiplexer multiplexer;
     private final float textFieldHeight = 60f;
     private final float textAreaHeight = 40f;
     private final float textSpace = 40f;
@@ -53,7 +47,7 @@ public class SettingsScreen extends BaseScreen {
         handleBackButton();
         handleSaveButton();
         stage.addActor(settingsTable);
-        multiplexer = new InputMultiplexer();
+        InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
         Gdx.input.setInputProcessor(multiplexer);
     }
@@ -165,10 +159,6 @@ public class SettingsScreen extends BaseScreen {
     }
 
     @Override
-    public void show() {
-    }
-
-    @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(250 / 255f, 235 / 255f, 215 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -180,21 +170,6 @@ public class SettingsScreen extends BaseScreen {
     @Override
     public void resize(int width, int height) {
         apiPort.update(width, height);
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
     }
 
     @Override

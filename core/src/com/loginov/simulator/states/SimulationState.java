@@ -1,12 +1,11 @@
-package com.loginov.simulator.Enums;
+package com.loginov.simulator.states;
 
 public enum SimulationState {
-    // TODO: FIX THE BUG WHEN PEOPLE GO OUTSIDE THE MAP WHEN CHANGING FROM NIGHT TO DAY
     DAY(16f),
     NIGHT(DAY.duration/2),
     ;
 
-    private float duration;
+    private final float duration;
     SimulationState(float generatedTime) {
         this.duration = generatedTime;
     }

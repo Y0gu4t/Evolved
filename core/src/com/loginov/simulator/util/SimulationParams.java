@@ -1,11 +1,10 @@
 package com.loginov.simulator.util;
 
 import com.badlogic.gdx.graphics.Color;
-import com.loginov.simulator.Actor.Collector;
-import com.loginov.simulator.Actor.Human;
-import com.loginov.simulator.Actor.Thief;
-import com.loginov.simulator.Actor.Warrior;
-import com.loginov.simulator.Clan.Clan;
+import com.loginov.simulator.actor.Collector;
+import com.loginov.simulator.actor.Human;
+import com.loginov.simulator.actor.Thief;
+import com.loginov.simulator.actor.Warrior;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,10 +20,10 @@ public class SimulationParams {
     private static int maxFoodAreaSize = 200;
     private static int minFoodAreaDistance = 300;
     private static int clanCount = 2;
-    private static int humanCount = 20;
-    private static int collectorCount = 5;
-    private static int warriorCount = 2;
-    private static int thiefCount = 3;
+    private static final int humanCount = 20;
+    private static final int collectorCount = 5;
+    private static final int warriorCount = 2;
+    private static final int thiefCount = 3;
     private static int humanAreas = 1;
     private static int minHumanAreaSize = 50;
     private static int maxHumanAreaSize = 200;

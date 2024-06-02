@@ -1,13 +1,11 @@
 package com.loginov.simulator;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.loginov.simulator.Screen.MenuScreen;
-import com.loginov.simulator.Screen.SimulatorScreen;
+import com.loginov.simulator.screen.MenuScreen;
+import com.loginov.simulator.screen.SimulatorScreen;
 import com.loginov.simulator.util.ResourceManager;
 
 

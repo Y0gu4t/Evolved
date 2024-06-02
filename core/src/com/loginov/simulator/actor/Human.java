@@ -1,4 +1,4 @@
-package com.loginov.simulator.Actor;
+package com.loginov.simulator.actor;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -8,10 +8,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.loginov.simulator.Clan.Clan;
-import com.loginov.simulator.Enums.HumanState;
-import com.loginov.simulator.Enums.SimulationState;
-import com.loginov.simulator.Screen.SimulatorScreen;
+import com.loginov.simulator.clan.Clan;
+import com.loginov.simulator.states.HumanState;
+import com.loginov.simulator.states.SimulationState;
+import com.loginov.simulator.screen.SimulatorScreen;
 import com.loginov.simulator.util.FoodGenerator;
 import com.loginov.simulator.util.HumanGenerator;
 import com.loginov.simulator.util.SimulationParams;
@@ -65,10 +65,6 @@ public abstract class Human extends DynamicWorldObject {
             case NIGHT:
                 if (this.state != HumanState.AT_HOME)
                     this.state = HumanState.GO_HOME;
-                /*else if (this.giveBirthOpportunity()) {
-                    humanGenerator.prepareChild(giveBirth(texture));
-                    agesAfterChildbirth = 0;
-                }*/
                 break;
         }
     }
@@ -76,8 +72,8 @@ public abstract class Human extends DynamicWorldObject {
     /**
      * set velocity of body
      *
-     * @param dx - delta x,
-     * @param dy - delta y
+     * @param dx delta x,
+     * @param dy delta y
      */
     public void move(float dx, float dy) {
         velocity = new Vector2(dx, dy);

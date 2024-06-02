@@ -1,4 +1,4 @@
-package com.loginov.simulator.Screen;
+package com.loginov.simulator.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -15,9 +14,9 @@ import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.ResourceManager;
 
 public class MenuScreen extends BaseScreen {
-    private Table menuTable;
-    private OrthographicCamera apiCamera;
-    private Viewport apiPort;
+    private final Table menuTable;
+    private final OrthographicCamera apiCamera;
+    private final Viewport apiPort;
     private float stateTime;
 
     public MenuScreen(Evolved proxy, ResourceManager resourceManager){
@@ -32,7 +31,7 @@ public class MenuScreen extends BaseScreen {
 
 
     /**
-     * create start button with listener
+     * Create start button with listener
      */
     private void handleStartButton(){
         createButton("Start", menuTable.getWidth()/3, 50, 0 , menuTable.getHeight()/10, menuTable);
@@ -46,7 +45,7 @@ public class MenuScreen extends BaseScreen {
     }
 
     /**
-     * create setting button with listener
+     * Create setting button with listener
      */
     private void handleSettingsButton(){
         createButton("Settings", menuTable.getWidth()/3, 50, 0 , menuTable.getHeight()/10, menuTable);
@@ -78,21 +77,6 @@ public class MenuScreen extends BaseScreen {
     @Override
     public void resize(int width, int height) {
         apiPort.update(width, height);
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
     }
 
     @Override

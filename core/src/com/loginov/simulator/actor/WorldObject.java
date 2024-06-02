@@ -1,12 +1,12 @@
 // Everything is ready
-package com.loginov.simulator.Actor;
+package com.loginov.simulator.actor;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 /**
- * A class describing any object used in the simulation
+ * The class describing any object used in the simulation
  *
  * @author loginov0203@gmail.com
  */
@@ -15,9 +15,6 @@ public abstract class WorldObject {
     private final Rectangle bounds;
     protected Texture texture;
 
-    /**
-     * Constructs an object with given position and dimensions
-     */
     public WorldObject(Texture texture, float x, float y, float width, float height) {
         position = new Vector2(x, y);
         bounds = new Rectangle(x - width / 2, y - height / 2, width, height);

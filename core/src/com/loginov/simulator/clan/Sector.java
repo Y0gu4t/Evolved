@@ -1,11 +1,11 @@
-package com.loginov.simulator.Clan;
+package com.loginov.simulator.clan;
 
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
-import com.loginov.simulator.Actor.Human;
+import com.loginov.simulator.actor.Human;
 
 public final class Sector implements Shape2D {
     public Vector2 center;
@@ -35,11 +35,7 @@ public final class Sector implements Shape2D {
     }
 
     public float getStart() {
-        float start = middle - getHalfAngle();
-        /*if (start < 0f) {
-            start += 360f;
-        }*/
-        return start;
+        return middle - getHalfAngle();
     }
 
     public float getMiddle() {

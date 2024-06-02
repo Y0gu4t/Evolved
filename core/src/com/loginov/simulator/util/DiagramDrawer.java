@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 public class DiagramDrawer {
-    private TreeMap<Integer, List<Integer>> pointsMap;
+    private final TreeMap<Integer, List<Integer>> pointsMap;
 
     public DiagramDrawer() {
         pointsMap = new TreeMap<>();

@@ -1,10 +1,10 @@
-package com.loginov.simulator.Actor;
+package com.loginov.simulator.actor;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Food extends WorldObject {
-    private static float satiety = 20f;
+    private static final float satiety = 20f;
     private static final float FOOD_WIDTH = 15f;
     private static final float FOOD_HEIGHT = 15f;
 

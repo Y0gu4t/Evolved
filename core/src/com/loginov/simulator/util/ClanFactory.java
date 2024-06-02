@@ -1,13 +1,13 @@
 package com.loginov.simulator.util;
 
 import com.badlogic.gdx.math.Circle;
-import com.loginov.simulator.Clan.Clan;
-import com.loginov.simulator.Clan.Sector;
+import com.loginov.simulator.clan.Clan;
+import com.loginov.simulator.clan.Sector;
 
 import java.util.ArrayList;
 
 public class ClanFactory {
-    private ArrayList<Clan> clans;
+    private final ArrayList<Clan> clans;
     public static float minAngle;
     public static float maxAngle;
 
@@ -49,9 +49,9 @@ public class ClanFactory {
     }
 
     public void removeEmptyClans() {
-        for (int i = 0; i < clans.size(); i++) {
-            if (clans.get(i).getMembers().isEmpty()) {
-                clans.get(i).getTerritory().setAngle(0f);
+        for (Clan clan : clans) {
+            if (clan.getMembers().isEmpty()) {
+                clan.getTerritory().setAngle(0f);
             }
         }
     }

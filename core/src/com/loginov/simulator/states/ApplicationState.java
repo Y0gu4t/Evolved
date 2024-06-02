@@ -1,4 +1,4 @@
-package com.loginov.simulator.Enums;
+package com.loginov.simulator.states;
 
 public enum ApplicationState {
     RUNNING,

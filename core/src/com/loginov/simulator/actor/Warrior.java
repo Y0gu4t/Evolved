@@ -1,15 +1,15 @@
-package com.loginov.simulator.Actor;
+package com.loginov.simulator.actor;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.loginov.simulator.Actor.Interfaces.Steal;
-import com.loginov.simulator.Clan.Clan;
-import com.loginov.simulator.Enums.HumanState;
-import com.loginov.simulator.Enums.SimulationState;
-import com.loginov.simulator.Screen.SimulatorScreen;
+import com.loginov.simulator.states.HumanState;
+import com.loginov.simulator.states.SimulationState;
+import com.loginov.simulator.screen.SimulatorScreen;
+import com.loginov.simulator.actor.actions.Steal;
+import com.loginov.simulator.clan.Clan;
 import com.loginov.simulator.util.FoodGenerator;
 import com.loginov.simulator.util.HumanGenerator;
 import com.loginov.simulator.util.SimulationParams;

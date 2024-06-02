@@ -1,32 +1,22 @@
-package com.loginov.simulator.Screen;
+package com.loginov.simulator.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Slider;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.loginov.simulator.Evolved;
 import com.loginov.simulator.util.ResourceManager;
-
-import javax.swing.GroupLayout;
 
 
 public class BaseScreen implements Screen {
     protected final Evolved proxy;
     protected ResourceManager resourceManager;
     protected OrthographicCamera apiCam;
-    // viewport that keeps aspect ratios of the game when resizing
     protected Viewport viewport;
-    // stage of each screen
     protected Stage stage;
 
     public BaseScreen(Evolved proxy, ResourceManager resourceManager){

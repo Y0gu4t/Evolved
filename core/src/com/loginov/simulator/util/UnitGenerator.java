@@ -3,7 +3,6 @@ package com.loginov.simulator.util;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.loginov.simulator.Actor.Human;
 
 import java.util.ArrayList;
 
@@ -60,7 +59,7 @@ public abstract class UnitGenerator {
     }
 
     /**
-     * create one large circular area in the center of the group
+     * Create one large circular area in the center of the group
      *
      * @param group - simulation screen area
      */

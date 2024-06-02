@@ -1,15 +1,14 @@
-// Everything is ready
-package com.loginov.simulator.Actor;
+package com.loginov.simulator.actor;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 
-/** A class describing dynamic objects used in the simulation
- * @author loginov0203@gmail.com */
+/** The class describing dynamic objects used in the simulation
+ * @author loginov0203@gmail.com
+ * */
 public abstract class DynamicWorldObject extends WorldObject {
     protected Vector2 velocity;
 
-    /** Constructs a dynamic object with the given components */
     public DynamicWorldObject(Texture texture, float x, float y, float width, float height) {
         super(texture, x, y, width, height);
         velocity = new Vector2(0, 0);

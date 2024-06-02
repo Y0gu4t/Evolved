@@ -2,12 +2,12 @@ package com.loginov.simulator.util;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.loginov.simulator.Actor.Food;
+import com.loginov.simulator.actor.Food;
 
 import java.util.ArrayList;
 
 public class FoodGenerator extends UnitGenerator {
-    private ArrayList<Food> food;
+    private final ArrayList<Food> food;
 
     public FoodGenerator(Group group) {
         super(group);
